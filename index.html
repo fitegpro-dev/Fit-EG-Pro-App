@@ -3,102 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FiT EG Pro - حاسبة السعرات الذكية</title>
-    <!-- Tailwind CSS للتصميم السريع والاحترافي -->
+    <title>FiT EG Pro - منصة التغذية والياقة الذكية</title>
+    <!-- Tailwind CSS للتصميم العصري -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client للربط الآمن -->
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #0f172a 100%);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+        }
+        .glow-btn:hover {
+            box-shadow: 0 6px 25px rgba(124, 58, 237, 0.5);
+            transform: translateY(-2px);
+        }
+        .brand-gradient {
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+<body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-purple-500 selection:text-white">
 
-    <!-- Header -->
-    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-emerald-400">FiT EG Pro 🚀</h1>
+    <!-- Header / الهيدر مع اللوجو -->
+    <header class="bg-slate-900/80 backdrop-filter blur-md border-b border-slate-800 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex flex-row-reverse justify-between items-center">
+            <!-- اللوجو واسم الماركة -->
+            <div class="flex items-center gap-3">
+                <img src="logo.png" onerror="this.src='Untitled-1.jpg'" alt="FiT EG Pro Logo" class="h-12 w-auto object-contain drop-shadow-[0_0_10px_rgba(96,165,250,0.3)]">
+                <span class="text-xl font-black brand-gradient tracking-wide hidden sm:inline">FiT EG PRO</span>
+            </div>
+            <!-- زر تسجيل الدخول / بروفايل المستخدم -->
             <div id="auth-section">
-                <button onclick="loginWithGoogle()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                <button onclick="loginWithGoogle()" class="glow-btn text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.24 10.285V13.4h6.887c-.58 2.319-2.72 4.041-5.647 4.041-3.37 0-6.102-2.731-6.102-6.101s2.732-6.101 6.102-6.101c1.48 0 2.827.53 3.87 1.408l2.532-2.532C18.252 2.727 15.42 1.8 12.24 1.8 6.58 1.8 2 6.38 2 12.04s4.58 10.24 10.24 10.24c5.918 0 9.84-4.16 9.84-10.02 0-.67-.072-1.32-.192-1.975H12.24z"/></svg>
                     تسجيل الدخول بـ Google
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-4xl mx-auto p-4 w-full flex-grow">
+    <!-- المحتوى الرئيسي -->
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 w-full flex-grow space-y-6">
+
+        <!-- Banner تشجيعي بتصميم نيوني -->
+        <div class="text-center my-4 space-y-2">
+            <h2 class="text-2xl sm:text-3xl font-black text-white">منصة التغذية والياقة البدنية الذكية 💪</h2>
+            <p class="text-slate-400 text-sm">احسب سعراتك، تتبع وجباتك بالذكاء الاصطناعي، وحقق هدفك الرياضي</p>
+        </div>
         
-        <!-- قسم تسجيل البيانات الأساسية (يظهر عند أول دخول) -->
-        <section id="onboarding-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 mb-6 hidden">
-            <h2 class="text-lg font-bold mb-4 text-emerald-400">أدخل بياناتك لحساب سعراتك اليومية</h2>
-            <form id="user-form" onsubmit="saveUserData(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- قسم تسجيل البيانات الأساسية (Onboarding) -->
+        <section id="onboarding-section" class="glass-card p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-700/50 hidden">
+            <div class="flex items-center gap-3 mb-6 border-b border-slate-700/50 pb-4">
+                <div class="p-3 bg-blue-600/20 text-blue-400 rounded-2xl">📊</div>
                 <div>
-                    <label class="block text-sm mb-1">السن</label>
-                    <input type="number" id="age" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                    <h3 class="text-lg font-bold text-white">أدخل بياناتك البدنية</h3>
+                    <p class="text-xs text-slate-400">لنقم بحساب احتياجك اليومي بدقة عالية</p>
+                </div>
+            </div>
+
+            <form id="user-form" onsubmit="saveUserData(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">السن (بالسنوات)</label>
+                    <input type="number" id="age" required class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
                 <div>
-                    <label class="block text-sm mb-1">النوع</label>
-                    <select id="gender" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
-                        <option value="male">ذكر</option>
-                        <option value="female">أنثى</option>
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">النوع</label>
+                    <select id="gender" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="male">ذكر ♂️</option>
+                        <option value="female">أنثى ♀️</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm mb-1">الطول (سم)</label>
-                    <input type="number" id="height" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">الطول (سم)</label>
+                    <input type="number" id="height" required class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
                 <div>
-                    <label class="block text-sm mb-1">الوزن (كجم)</label>
-                    <input type="number" id="weight" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">الوزن الحالي (كجم)</label>
+                    <input type="number" id="weight" required class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
                 <div>
-                    <label class="block text-sm mb-1">مستوى النشاط</label>
-                    <select id="activity" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
-                        <option value="1.2">قليل الحركة</option>
-                        <option value="1.375">نشاط خفيف</option>
-                        <option value="1.55">نشاط متوسط</option>
-                        <option value="1.725">نشاط عالي</option>
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">مستوى النشاط البدني</label>
+                    <select id="activity" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="1.2">خامل (عمل مكتبي بدون تمارين)</option>
+                        <option value="1.375">نشاط خفيف (تمارين 1-3 أيام/أسبوع)</option>
+                        <option value="1.55">نشاط متوسط (تمارين 3-5 أيام/أسبوع)</option>
+                        <option value="1.725">نشاط عالي (تمارين شاقة يومية)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm mb-1">رابط بروفايل الفيسبوك (إجباري)</label>
-                    <input type="url" id="facebook" required placeholder="https://facebook.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">رابط بروفايل الفيسبوك (إجباري)</label>
+                    <input type="url" id="facebook" required placeholder="https://facebook.com/your.profile" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm mb-1">رقم الواتساب (اختياري)</label>
-                    <input type="text" id="whatsapp" placeholder="010xxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">رقم الواتساب (اختياري للتذكير والتأهيل)</label>
+                    <input type="text" id="whatsapp" placeholder="010xxxxxxxx" class="w-full bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-white focus:outline-none focus:border-blue-500 transition">
                 </div>
-                <div class="md:col-span-2">
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">
+                <div class="sm:col-span-2 pt-2">
+                    <button type="submit" class="w-full glow-btn text-white font-black py-4 rounded-xl text-base transition">
                         حفظ البيانات وحساب السعرات
                     </button>
                 </div>
             </form>
         </section>
 
-        <!-- لوحة التحكم اليومية (تظهر للمستخدم المسجل) -->
+        <!-- Dashboard لوحة التحكم بعد تسجيل الدخول -->
         <section id="dashboard-section" class="space-y-6 hidden">
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 text-center">
-                <h2 class="text-xl font-bold text-emerald-400 mb-2">مرحباً بك يا بطل! 💪</h2>
-                <p class="text-slate-300 text-sm">سعراتك المستهدفة اليومية لزيادة الوزن:</p>
-                <div id="target-calories" class="text-4xl font-extrabold text-emerald-400 my-3">0</div>
-                <p class="text-xs text-slate-400">سعرة حرارية / يومياً</p>
+            <!-- كارت السعرات المبتكر -->
+            <div class="glass-card p-8 rounded-3xl text-center relative overflow-hidden border border-blue-500/20 shadow-2xl">
+                <div class="absolute -top-12 -right-12 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl"></div>
+                
+                <span class="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-semibold inline-block mb-3">هدف التضخيم وزيادة العضلات 🎯</span>
+                <h3 class="text-slate-300 text-sm font-medium">سعراتك المستهدفة اليومية</h3>
+                <div id="target-calories" class="text-5xl font-black brand-gradient my-4 tracking-tight">0</div>
+                <p class="text-xs text-slate-400">سعرة حرارية / يومياً شاملة الفائض التدريجي</p>
             </div>
 
-            <!-- أزرار الإضافات الذكية (فويس وكاميرا) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onclick="alert('خاصية تسجيل الوجبة بالصوت جاري ربطها مع Gemini API')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-4 rounded-xl flex items-center justify-center gap-3 transition">
-                    <span class="text-2xl">🎙️</span> تسجيل الوجبة بالصوت
+            <!-- أزرار الذكاء الاصطناعي الفخمة -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onclick="alert('خاصية تسجيل الوجبة بالصوت عبر Gemini AI قادمة في التحديث القادم!')" class="glass-card hover:bg-slate-800/80 p-5 rounded-2xl flex items-center justify-between border border-blue-500/20 group transition">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-blue-600/20 text-blue-400 rounded-xl text-2xl group-hover:scale-110 transition">🎙️</div>
+                        <div class="text-right">
+                            <h4 class="font-bold text-white text-sm">تسجيل الوجبة بالصوت</h4>
+                            <p class="text-xs text-slate-400">تحدث بالعامية وسيسجلها الـ AI</p>
+                        </div>
+                    </div>
+                    <span class="text-blue-400 font-bold text-lg">←</span>
                 </button>
-                <button onclick="alert('خاصية مسح القيمة الغذائية بالكاميرا جاري ربطها')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-4 rounded-xl flex items-center justify-center gap-3 transition">
-                    <span class="text-2xl">📷</span> سكان بالكاميرا للوجبة/الباركود
+
+                <button onclick="alert('خاصية سكان الوجبة بالكاميرا عبر Gemini AI قادمة في التحديث القادم!')" class="glass-card hover:bg-slate-800/80 p-5 rounded-2xl flex items-center justify-between border border-purple-500/20 group transition">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-purple-600/20 text-purple-400 rounded-xl text-2xl group-hover:scale-110 transition">📷</div>
+                        <div class="text-right">
+                            <h4 class="font-bold text-white text-sm">سكان الوجبة بالكاميرا</h4>
+                            <p class="text-xs text-slate-400">صور طبقك وسيحسب الماكروز فوراً</p>
+                        </div>
+                    </div>
+                    <span class="text-purple-400 font-bold text-lg">←</span>
                 </button>
+            </div>
+
+            <!-- دليل السعرات والأطعمة -->
+            <div class="glass-card p-6 rounded-3xl border border-slate-700/50">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <span>🍎</span> دليل القيم الغذائية (لكل 100 جرام)
+                    </h3>
+                </div>
+                <div id="food-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
+                    <p class="text-slate-400 text-sm">جاري تحميل جدول الأطعمة...</p>
+                </div>
             </div>
         </section>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-800 border-t border-slate-700 p-4 text-center text-xs text-slate-400">
-        جميع الحقوق محفوظة © FiT EG Pro 2026
+    <footer class="bg-slate-950/80 border-t border-slate-800/60 py-4 px-6 text-center text-xs text-slate-500">
+        جميع الحقوق محفوظة © <span class="font-bold text-slate-300">FiT EG Pro</span> 2026
     </footer>
 
     <!-- Script الربط وقواعد العمل -->
@@ -115,23 +190,31 @@
             if (error) alert("خطأ في تسجيل الدخول: " + error.message);
         }
 
-        // فحص حالة المستخدم عند فتح الصفحة
         supabase.auth.onAuthStateChange(async (event, session) => {
             if (session) {
-                document.getElementById('auth-section').innerHTML = `<span class="text-sm text-emerald-400">${session.user.email}</span>`;
+                document.getElementById('auth-section').innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs sm:text-sm font-semibold text-blue-400 bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20">${session.user.email}</span>
+                        <button onclick="logout()" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition">خروج</button>
+                    </div>
+                `;
                 checkUserProfile(session.user.id);
             }
         });
 
+        async function logout() {
+            await supabase.auth.signOut();
+            location.reload();
+        }
+
         async function checkUserProfile(userId) {
             const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
             if (data) {
-                // المستخدم مسجل بياناته من قبل
                 document.getElementById('onboarding-section').classList.add('hidden');
                 document.getElementById('dashboard-section').classList.remove('hidden');
                 document.getElementById('target-calories').innerText = data.daily_calories || 2500;
+                loadFoodDatabase();
             } else {
-                // أول مرة يسجل، نظهر له فورم البيانات
                 document.getElementById('onboarding-section').classList.remove('hidden');
             }
         }
@@ -152,7 +235,6 @@
             const facebook = document.getElementById('facebook').value;
             const whatsapp = document.getElementById('whatsapp').value;
 
-            // حساب السعرات بمعادلة Mifflin-St Jeor + 500 سعرة لزيادة الوزن والتضخيم
             let bmr = (10 * weight) + (6.25 * height) - (5 * age) + (gender === 'male' ? 5 : -161);
             let tdee = Math.round(bmr * activity + 500);
 
@@ -178,6 +260,29 @@
                 alert("تم حفظ بياناتك بنجاح!");
                 location.reload();
             }
+        }
+
+        async function loadFoodDatabase() {
+            const { data, error } = await supabase.from('food_database').select('*').limit(20);
+            const foodListDiv = document.getElementById('food-list');
+            
+            if (error || !data || data.length === 0) {
+                foodListDiv.innerHTML = `<p class="text-slate-400 text-xs col-span-2 text-center py-4">لا توجد أطعمة مسجلة حالياً في القائمة.</p>`;
+                return;
+            }
+
+            foodListDiv.innerHTML = '';
+            data.forEach(food => {
+                foodListDiv.innerHTML += `
+                    <div class="bg-slate-950/40 border border-slate-800 p-3.5 rounded-2xl flex justify-between items-center hover:border-blue-500/40 transition">
+                        <div>
+                            <h4 class="font-bold text-white text-xs sm:text-sm mb-1">${food.food_name}</h4>
+                            <p class="text-[11px] text-slate-400">بروتين: <span class="text-blue-400">${food.protein_per_100g}ج</span> | كارب: <span class="text-purple-400">${food.carbs_per_100g}ج</span> | دهون: <span class="text-amber-400">${food.fats_per_100g}ج</span></p>
+                        </div>
+                        <span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs px-2.5 py-1 rounded-xl font-black">${food.calories_per_100g} كالوري</span>
+                    </div>
+                `;
+            });
         }
     </script>
 </body>
