@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiT EG Pro - حاسبة السعرات الذكية</title>
+    <!-- Tailwind CSS للتصميم السريع والاحترافي -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client للربط الآمن -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 shadow-md">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-emerald-400">FiT EG Pro 🚀</h1>
+            <div id="auth-section">
+                <button onclick="loginWithGoogle()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                    تسجيل الدخول بـ Google
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto p-4 w-full flex-grow">
+        
+        <!-- قسم تسجيل البيانات الأساسية (يظهر عند أول دخول) -->
+        <section id="onboarding-section" class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700 mb-6 hidden">
+            <h2 class="text-lg font-bold mb-4 text-emerald-400">أدخل بياناتك لحساب سعراتك اليومية</h2>
+            <form id="user-form" onsubmit="saveUserData(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm mb-1">السن</label>
+                    <input type="number" id="age" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">النوع</label>
+                    <select id="gender" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                        <option value="male">ذكر</option>
+                        <option value="female">أنثى</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">الطول (سم)</label>
+                    <input type="number" id="height" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">الوزن (كجم)</label>
+                    <input type="number" id="weight" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">مستوى النشاط</label>
+                    <select id="activity" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                        <option value="1.2">قليل الحركة</option>
+                        <option value="1.375">نشاط خفيف</option>
+                        <option value="1.55">نشاط متوسط</option>
+                        <option value="1.725">نشاط عالي</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">رابط بروفايل الفيسبوك (إجباري)</label>
+                    <input type="url" id="facebook" required placeholder="https://facebook.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm mb-1">رقم الواتساب (اختياري)</label>
+                    <input type="text" id="whatsapp" placeholder="010xxxxxxxx" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                </div>
+                <div class="md:col-span-2">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">
+                        حفظ البيانات وحساب السعرات
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- لوحة التحكم اليومية (تظهر للمستخدم المسجل) -->
+        <section id="dashboard-section" class="space-y-6 hidden">
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 text-center">
+                <h2 class="text-xl font-bold text-emerald-400 mb-2">مرحباً بك يا بطل! 💪</h2>
+                <p class="text-slate-300 text-sm">سعراتك المستهدفة اليومية لزيادة الوزن:</p>
+                <div id="target-calories" class="text-4xl font-extrabold text-emerald-400 my-3">0</div>
+                <p class="text-xs text-slate-400">سعرة حرارية / يومياً</p>
+            </div>
+
+            <!-- أزرار الإضافات الذكية (فويس وكاميرا) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="alert('خاصية تسجيل الوجبة بالصوت جاري ربطها مع Gemini API')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-4 rounded-xl flex items-center justify-center gap-3 transition">
+                    <span class="text-2xl">🎙️</span> تسجيل الوجبة بالصوت
+                </button>
+                <button onclick="alert('خاصية مسح القيمة الغذائية بالكاميرا جاري ربطها')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-4 rounded-xl flex items-center justify-center gap-3 transition">
+                    <span class="text-2xl">📷</span> سكان بالكاميرا للوجبة/الباركود
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 border-t border-slate-700 p-4 text-center text-xs text-slate-400">
+        جميع الحقوق محفوظة © FiT EG Pro 2026
+    </footer>
+
+    <!-- Script الربط وقواعد العمل -->
+    <script>
+        const SUPABASE_URL = "https://bptnoiflpalslcsdbvyk.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_6bdYFgXMv3DnDMU8Rx4qTQ_U1_r6f2j"; 
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function loginWithGoogle() {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+            });
+            if (error) alert("خطأ في تسجيل الدخول: " + error.message);
+        }
+
+        // فحص حالة المستخدم عند فتح الصفحة
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session) {
+                document.getElementById('auth-section').innerHTML = `<span class="text-sm text-emerald-400">${session.user.email}</span>`;
+                checkUserProfile(session.user.id);
+            }
+        });
+
+        async function checkUserProfile(userId) {
+            const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
+            if (data) {
+                // المستخدم مسجل بياناته من قبل
+                document.getElementById('onboarding-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
+                document.getElementById('target-calories').innerText = data.daily_calories || 2500;
+            } else {
+                // أول مرة يسجل، نظهر له فورم البيانات
+                document.getElementById('onboarding-section').classList.remove('hidden');
+            }
+        }
+
+        async function saveUserData(e) {
+            e.preventDefault();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                alert("يرجى تسجيل الدخول بحساب Google أولاً!");
+                return;
+            }
+
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const height = document.getElementById('height').value;
+            const weight = document.getElementById('weight').value;
+            const activity = parseFloat(document.getElementById('activity').value);
+            const facebook = document.getElementById('facebook').value;
+            const whatsapp = document.getElementById('whatsapp').value;
+
+            // حساب السعرات بمعادلة Mifflin-St Jeor + 500 سعرة لزيادة الوزن والتضخيم
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age) + (gender === 'male' ? 5 : -161);
+            let tdee = Math.round(bmr * activity + 500);
+
+            const { error } = await supabase.from('users').insert([
+                {
+                    id: user.id,
+                    email: user.email,
+                    full_name: user.user_metadata.full_name || '',
+                    age: parseInt(age),
+                    gender: gender,
+                    height: parseFloat(height),
+                    weight: parseFloat(weight),
+                    activity_level: activity.toString(),
+                    daily_calories: tdee,
+                    facebook_link: facebook,
+                    whatsapp_number: whatsapp
+                }
+            ]);
+
+            if (error) {
+                alert("حدث خطأ أثناء الحفظ: " + error.message);
+            } else {
+                alert("تم حفظ بياناتك بنجاح!");
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
