@@ -259,6 +259,11 @@
                 </div>
 
                 <form id="user-form" onsubmit="saveUserData(event)" class="space-y-7">
+                    <div>
+                        <label class="flabel" for="full_name">اسمك اللي يظهر عندي</label>
+                        <input type="text" id="full_name" maxlength="100" autocomplete="name" required class="input" placeholder="اكتب اسمك الحقيقي أو الاسم اللي تحب يظهر">
+                        <p class="hint">الاسم بيتحفظ مع حساب Google وبياناتك.</p>
+                    </div>
 
                     <!-- البيانات الجسدية -->
                     <div class="space-y-4">
@@ -328,11 +333,7 @@
 
                     <!-- التواصل -->
                     <div class="space-y-4">
-                        <h3 class="text-sm font-black flex items-center gap-2"><svg class="i" style="width:18px;height:18px;color:var(--brand)"><use href="#i-check"/></svg> بيانات التواصل</h3>
-                        <div>
-                            <label class="flabel" for="facebook">رابط بروفايل فيسبوك <span style="color:#ef4444">*</span></label>
-                            <input type="url" id="facebook" required placeholder="https://facebook.com/your.name" dir="ltr" class="input" style="text-align:left">
-                        </div>
+                        <h3 class="text-sm font-black flex items-center gap-2"><svg class="i" style="width:18px;height:18px;color:var(--brand)"><use href="#i-check"/></svg> بيانات التواصل (اختياري)</h3>
                         <div>
                             <label class="flabel" for="whatsapp">رقم الواتساب <span class="font-medium" style="color:var(--ink2)">(اختياري)</span></label>
                             <input type="tel" id="whatsapp" placeholder="010xxxxxxxx" dir="ltr" class="input" style="text-align:left">
@@ -450,7 +451,7 @@
                     </div>
                     <div class="grid sm:grid-cols-2 gap-2">
                         <button type="button" id="voice-meal-btn" onclick="startMealVoice()" class="btn btn-out w-full"><svg class="i"><use href="#i-mic"/></svg> اكتب الوصف بالصوت</button>
-                        <button type="button" class="btn btn-primary w-full" onclick="analyzeMealDescription()"><svg class="i"><use href="#i-search"/></svg> دور واحسب من الدليل</button>
+                        <button type="button" class="btn btn-primary w-full" onclick="analyzeMealDescription()"><svg class="i"><use href="#i-search"/></svg> حلّل الجملة واحسب من الدليل</button>
                         <button type="button" onclick="openMealCamera()" class="btn btn-out w-full"><svg class="i"><use href="#i-camera"/></svg> صوّر الأكلة</button>
                         <input id="meal-camera-input" type="file" accept="image/*" capture="environment" class="hidden" onchange="handleMealPhoto(event)">
                     </div>
@@ -793,6 +794,10 @@
                         </button>
                     </div>`;
                 currentUser = session.user;
+                const nameInput = $('full_name');
+                if (nameInput && !nameInput.value.trim()) {
+                    nameInput.value = (session.user.user_metadata && (session.user.user_metadata.full_name || session.user.user_metadata.name)) || email.split('@')[0] || '';
+                }
                 if (profileLoadedFor !== session.user.id) {
                     profileLoadedFor = session.user.id;
                     setTimeout(() => checkUserProfile(session.user), 0);
@@ -889,6 +894,8 @@
             const age = parseInt($('age').value);
             const height = parseFloat($('height').value);
             const weight = parseFloat($('weight').value);
+            const fullName = $('full_name').value.trim();
+            if (!fullName) { alert('اكتب اسمك عشان نقدر نحفظه مع حسابك.'); $('full_name').focus(); return; }
 
             // معادلة Mifflin-St Jeor + مستوى النشاط + الهدف
             const bmr = (10 * weight) + (6.25 * height) - (5 * age) + (gender === 'male' ? 5 : -161);
@@ -900,7 +907,7 @@
             const row = {
                 id: user.id,
                 email: user.email,
-                full_name: (profile && profile.full_name) || (user.user_metadata && user.user_metadata.full_name) || '',
+                full_name: fullName,
                 age: age,
                 gender: gender,
                 height: height,
@@ -909,7 +916,7 @@
                 daily_calories: tdee,
                 fitness_goal: goal,
                 health_flag: $('health_flag').checked,
-                facebook_link: $('facebook').value,
+                facebook_link: '',
                 whatsapp_number: $('whatsapp').value
             };
 
@@ -943,6 +950,7 @@
                 const el = [...document.querySelectorAll(`input[name="${name}"]`)].find(x => x.value === String(val));
                 if (el) el.checked = true;
             };
+            $('full_name').value = p.full_name || (currentUser && currentUser.user_metadata && (currentUser.user_metadata.full_name || currentUser.user_metadata.name)) || (currentUser && currentUser.email ? currentUser.email.split('@')[0] : '');
             setRadio('gender', p.gender);
             setRadio('goal', targets.goal);
             const act = [...document.querySelectorAll('input[name="activity"]')].find(x => parseFloat(x.value) === parseFloat(p.activity_level));
@@ -951,7 +959,6 @@
             $('height').value = p.height ?? '';
             $('weight').value = p.weight ?? '';
             $('health_flag').checked = !!p.health_flag;
-            $('facebook').value = p.facebook_link || '';
             $('whatsapp').value = p.whatsapp_number || '';
             $('form-title').textContent = 'تعديل بياناتك';
             $('form-sub').textContent = 'غيّر اللي محتاجه وهنحسب خطتك من جديد';
@@ -1552,6 +1559,18 @@
     ['snack', 'جبنة قريش مع طماطم وخيار', 160, 22, 8, 4, ''],
     ['snack', 'حفنة لوز مع تفاحة', 230, 6, 26, 12, '']
   ];
+  const VIDEO_RECIPES = [
+    ['مثال ليوم كامل للعشر نصائح | حلو وحادق حلقة كاملة', 'https://www.youtube.com/watch?v=6hZGadY2BUM'],
+    ['عجة مشبعة للدايت | سالي فؤاد', 'https://www.youtube.com/watch?v=UYnqTo0gw9k'],
+    ['مشروب الكاكاو الدايت بالشوفان | سالي فؤاد', 'https://www.youtube.com/watch?v=fu411a2y1AE'],
+    ['فتة باذنجان دايت | سالي فؤاد', 'https://www.youtube.com/watch?v=WupWWXXN450'],
+    ['أرز أسمر دايت بالبصل والشبت - كفتة سمك دايت | سالي فؤاد', 'https://www.youtube.com/watch?v=8767DyvPoxU'],
+    ['طاجن تورلي دايت | سالي فؤاد', 'https://www.youtube.com/watch?v=adskCRC6v0s'],
+    ['خبز الطاسة بروتين عالي جدا للدايت و للشبع #سالي #highprotein #breadrecipe #sallyfouad', 'https://www.youtube.com/watch?v=FB8_dsxyf8s'],
+    ['جهزو المكونات ديه في برطمان و اعملو منه يوميا أسرع خبز امليت مشبع بدون نشويات فطار و عشا #سالي_فؤاد', 'https://www.youtube.com/watch?v=NGoK1DJwIlQ'],
+    ['سناك خطير لجوع بالليل مناسب للدايت #سالي_فؤاد #snack #diet #حمص #chickpeas #sallyfouad', 'https://www.youtube.com/watch?v=okS307Ua0t4'],
+    ['بروتين بار بيتي | سالي فؤاد', 'https://www.youtube.com/watch?v=U_BoBxW-qJs']
+  ];
 
   /* ---------- ستايل ---------- */
   const st = document.createElement('style');
@@ -1600,7 +1619,10 @@
       out.push({
         id: 'off_' + i, food_name: name + (p.brands ? ' (' + p.brands.split(',')[0].trim() + ')' : ''),
         serving: '100 جرام (قيم تقريبية)',
-        calories: Math.round(kcal), protein: r1(n['proteins_100g']), carbs: r1(n['carbohydrates_100g']), fats: r1(n['fat_100g'])
+        calories: Math.round(kcal),
+        protein: Number.isFinite(Number(n['proteins_100g'])) ? r1(n['proteins_100g']) : null,
+        carbs: Number.isFinite(Number(n['carbohydrates_100g'])) ? r1(n['carbohydrates_100g']) : null,
+        fats: Number.isFinite(Number(n['fat_100g'])) ? r1(n['fat_100g']) : null
       });
     });
     return out.slice(0, 6);
@@ -1685,7 +1707,15 @@
             <button type="button" class="btn btn-primary btn-sm" data-recipe="${i}">سجّلها</button>
             ${r[6] ? `<a class="btn btn-out btn-sm" href="${esc(r[6])}" target="_blank" rel="noopener noreferrer">شوف الطريقة</a>` : ''}
           </div>
-        </div>`).join('')}</div>`;
+        </div>`).join('')}</div>
+      <div class="mt-6">
+        <h4 class="font-black text-sm mb-3">فيديوهات الوصفات اللي بعتها</h4>
+        <p class="text-xs mb-3" style="color:var(--ink2)">افتح الفيديو للمشاهدة. الفيديو لوحده مش بيتسجل كوجبة؛ سجّل اللي أكلته من نموذج الوجبات.</p>
+        <div class="grid sm:grid-cols-2 gap-2">${VIDEO_RECIPES.map(([title, url]) => `
+          <a class="rc-card flex items-center justify-between gap-3 text-sm font-bold" href="${esc(url)}" target="_blank" rel="noopener noreferrer">
+            <span>${esc(title)}</span><span class="chip flex-shrink-0">افتح الفيديو</span>
+          </a>`).join('')}</div>
+      </div>`;
   }
   renderRecipes();
 
@@ -1784,116 +1814,198 @@
     return 1;
   }
 
-  window.analyzeMealDescription = function () {
+  const MEAL_UNIT_LABELS = { g: 'جرام', ml: 'مل', piece: 'قطعة', serving: 'حصة', cup: 'كوب', tablespoon: 'ملعقة كبيرة', teaspoon: 'ملعقة صغيرة', unknown: 'كمية' };
+
+  function servingsFromParsedAmount(item, food) {
+    if (item.amount == null || !Number.isFinite(Number(item.amount))) return 1;
+    const amount = Number(item.amount);
+    const serving = String(food.serving || '').toLowerCase();
+    const baseMatch = serving.match(/(\d+(?:[.,]\d+)?)\s*(جرام|جم|غرام|غ|g|مل|ml|قطعه|قطعة|حبه|حبة|حبات|بيضه|بيضة)/i);
+    if (baseMatch) {
+      const base = Number(baseMatch[1].replace(',', '.'));
+      const token = baseMatch[2].toLowerCase();
+      const gramUnit = ['g','غ','جم','جرام','غرام'].includes(item.unit);
+      const mlUnit = ['ml','مل'].includes(item.unit);
+      const pieceUnit = item.unit === 'piece';
+      const servingGram = /^(g|غ|جم|جرام|غرام)$/.test(token);
+      const servingMl = /^(ml|مل)$/.test(token);
+      const servingPiece = /(قطعه|قطعة|حبه|حبة|حبات|بيضه|بيضة)/.test(token);
+      if ((gramUnit && servingGram) || (mlUnit && servingMl) || (pieceUnit && servingPiece)) return Math.max(0.25, Math.min(20, amount / base));
+    }
+    if (item.unit === 'serving') return Math.max(0.25, Math.min(20, amount));
+    if (item.unit === 'piece' && /حبه|حبة|قطعه|قطعة|بيضه|بيضة/i.test(serving)) return Math.max(0.25, Math.min(20, amount));
+    return 1;
+  }
+
+  function renderParsedMealDraft() {
+    const box = document.getElementById('meal-description-results');
+    const draft = window.__mealDraft || [];
+    if (!box) return;
+    const missingItems = draft.filter(x => !x.choices.length);
+    const cards = draft.map((item, i) => {
+      if (!item.choices.length) {
+        return `<div class="p-3 rounded-xl" style="background:#fff7ed;border:1px solid #fed7aa">
+          <b class="text-sm">ما لقيناش: ${esc(item.parsed.name)}</b>
+          <p class="text-xs mt-1">جرّب البحث اليدوي باسم الصنف أو أضفه للدليل. مش هنخمن قيمه الغذائية.</p>
+          <button type="button" class="btn btn-out btn-sm mt-2" onclick="searchParsedMealItem(${i})">ابحث عن الصنف</button>
+        </div>`;
+      }
+      const safeIndex = Math.min(item.choiceIndex || 0, item.choices.length - 1);
+      const selected = item.choices[safeIndex];
+      const amountText = item.parsed.amount == null ? 'الكمية مش مذكورة' : `الكمية في كلامك: ${r1(item.parsed.amount)} ${MEAL_UNIT_LABELS[item.parsed.unit] || ''}`;
+      const options = item.choices.map((food, j) => `<option value="${j}" ${j === safeIndex ? 'selected' : ''}>${esc(food.food_name)} — ${esc(food.serving || 'حصة واحدة')} · ${r1(food.calories)} سعرة</option>`).join('');
+      const qty = servingsFromParsedAmount(item.parsed, selected);
+      item.quantity = item.quantity ?? qty;
+      const macrosMissing = ['calories','protein','carbs','fats'].some(k => foodMacro(selected, k) === null);
+      return `<div class="p-3 rounded-xl" style="background:#fff;border:1px solid var(--line)">
+        <div class="flex items-center justify-between gap-2"><b class="text-sm">${esc(item.parsed.name)}</b><span class="text-[11px]" style="color:var(--ink2)">${esc(amountText)}</span></div>
+        <label class="flabel mt-2" for="parsed-choice-${i}">اختار أنهي صنف هو اللي أكلته</label>
+        <select id="parsed-choice-${i}" class="input" data-parsed-choice="${i}" onchange="updateParsedMealChoice(this)">${options}</select>
+        <div class="text-[11px] mt-2" style="color:var(--ink2)">المصدر: ${esc(selected.sourceLabel || 'دليل الأكل')} · الحصة: ${esc(selected.serving || 'حصة واحدة')}</div>
+        <div class="grid grid-cols-[1fr_90px] gap-2 items-center mt-2"><label class="text-xs" for="parsed-qty-${i}" style="color:var(--ink2)">عدد الحصص</label><input id="parsed-qty-${i}" class="input" type="number" min="0.25" max="20" step="0.25" value="${item.quantity}" data-parsed-qty="${i}" oninput="updateParsedMealTotals()" aria-label="عدد حصص ${esc(item.parsed.name)}"></div>
+        <div class="text-[11px] mt-2" style="color:var(--ink2)">للحصة: ${r1(selected.calories)} سعرة · بروتين ${r1(selected.protein)} جم · كارب ${r1(selected.carbs)} جم · دهون ${r1(selected.fats)} جم</div>
+        ${macrosMissing ? '<p class="text-xs mt-1 font-bold" style="color:#b45309">القيم الغذائية ناقصة لهذا الاختيار؛ اختار صنفًا ببيانات مكتملة.</p>' : ''}
+      </div>`;
+    }).join('');
+    const allComplete = draft.length > 0 && !missingItems.length && draft.every(item => {
+      const f = item.choices[item.choiceIndex || 0];
+      return f && ['calories','protein','carbs','fats'].every(k => foodMacro(f,k) !== null);
+    });
+    box.innerHTML = `<h4 class="font-black text-sm mb-2">راجع الأصناف والقيم قبل التسجيل</h4>
+      <div class="grid gap-2">${cards}</div>
+      <div id="parsed-meal-total" class="p-3 mt-3 rounded-xl text-sm" style="background:var(--soft)"></div>
+      <p class="hint">Gemini يفهم الجملة ويستخرج أسماء الأكل والكميات فقط. السعرات والقيم من دليل الأكل أو Open Food Facts، مش من تخمين Gemini. راجع الحصة؛ لو ما قلتش كمية، بنبدأ بحصة واحدة.</p>
+      ${missingItems.length ? '<p class="text-xs mt-2 font-bold" style="color:#9a3412">ما تسجلش الوجبة إلا بعد اختيار بيانات لكل صنف.</p>' : ''}
+      <button type="button" class="btn btn-primary w-full mt-3" onclick="saveParsedMeal()" ${allComplete ? '' : 'disabled'}>سجّل الوجبة بعد المراجعة</button>`;
+    window.updateParsedMealTotals();
+  }
+
+  function foodMacro(food, key) {
+    if (!food) return null;
+    const value = food[key];
+    if (value === null || value === undefined || value === '' || !Number.isFinite(Number(value))) return null;
+    return Number(value);
+  }
+
+  window.analyzeMealDescription = async function () {
     const box = document.getElementById('meal-description-results');
     const status = document.getElementById('meal-capture-status');
     const text = document.getElementById('meal-description').value.trim();
     box.classList.remove('hidden');
-    if (!text) {
-      box.innerHTML = '<p class="text-xs" style="color:#b91c1c">اكتب أو سجّل وصف الأكل الأول.</p>';
-      return;
+    if (!text) { box.innerHTML = '<p class="text-xs" style="color:#b91c1c">اكتب أو سجّل وصف أكلك الأول.</p>'; return; }
+    if (!currentUser) { box.innerHTML = '<p class="text-xs" style="color:#b91c1c">سجّل الدخول الأول عشان نحلل الوجبة.</p>'; return; }
+    if (!foodDatabaseLoaded) { box.innerHTML = '<p class="text-xs" style="color:var(--ink2)">لسه دليل الأكل بيتحمّل. استنى ثواني وجرب تاني.</p>'; return; }
+    if (text.length > 500) { box.innerHTML = '<p class="text-xs" style="color:#b91c1c">الوصف طويل؛ اختصره لأقل من 500 حرف.</p>'; return; }
+    box.innerHTML = '<p class="text-xs" style="color:var(--ink2)">Gemini بيفهم الجملة، وبعدها بندوّر على كل صنف في دليل الأكل ومصدر القيم...</p>';
+    if (status) { status.textContent = 'بنحلل الجملة وبنبحث عن الأصناف.'; status.classList.remove('hidden'); }
+    try {
+      const { data, error } = await db.functions.invoke('parse-meal-description', { body: { text } });
+      if (error) throw error;
+      const parsedItems = Array.isArray(data?.items) ? data.items : [];
+      if (!parsedItems.length) { box.innerHTML = '<p class="text-xs" style="color:var(--ink2)">ما قدرناش نحدد أكلة من الوصف. اكتب أسماء الأكلات بشكل أوضح.</p>'; return; }
+      const boundedItems = parsedItems.slice(0, 8).map(x => ({
+        name: String(x.name || '').trim().slice(0, 100),
+        amount: x.amount !== null && x.amount !== undefined && Number.isFinite(Number(x.amount)) ? Number(x.amount) : null,
+        unit: MEAL_UNIT_LABELS[x.unit] ? x.unit : 'unknown',
+        searchTerms: Array.isArray(x.search_terms) ? x.search_terms.map(y => String(y || '').trim().slice(0, 100)).filter(Boolean).slice(0, 3) : []
+      })).filter(x => x.name);
+      if (!boundedItems.length) throw new Error('التحليل ما رجعش أسماء أكلات مفهومة.');
+      const results = await Promise.all(boundedItems.map(async parsed => {
+        let choices = allFoods.filter(f => matchFood(f.food_name, parsed.name)).slice(0, 6).map(f => ({ ...f, sourceLabel: 'دليل الأكل عندك' }));
+        if (choices.length < 2) {
+          const queries = [...new Set([parsed.name, ...parsed.searchTerms])].slice(0, 3);
+          for (const query of queries) {
+            if (choices.length >= 4) break;
+            try {
+              const found = await searchOFF(query);
+              found.forEach((f, j) => {
+                if (choices.length >= 4) return;
+                const duplicate = choices.some(c => norm(c.food_name) === norm(f.food_name));
+                if (!duplicate) choices.push({ ...f, id: `parsed_${Date.now()}_${Math.random().toString(36).slice(2)}_${j}`, sourceLabel: 'Open Food Facts (تقريبي)' });
+              });
+              if (found.length) break;
+            } catch (e) { console.warn('Open Food Facts lookup failed', e); }
+          }
+        }
+        return { parsed, choices, choiceIndex: 0, quantity: null };
+      }));
+      window.__mealDraft = results;
+      renderParsedMealDraft();
+      if (status) status.textContent = `لقينا ${results.filter(x => x.choices.length).length} من ${results.length} أصناف. راجع الاختيارات والكميات قبل التسجيل.`;
+    } catch (error) {
+      console.error('Meal description analysis failed:', error);
+      const msg = String(error?.message || error || 'تعذّر التحليل');
+      box.innerHTML = `<div class="p-3 rounded-xl text-sm" style="background:#fff7ed;color:#9a3412;border:1px solid #fed7aa">ما قدرناش نحلل الجملة. لازم تنشر Supabase Edge Function باسم <b>parse-meal-description</b> وتضيف مفتاح Gemini كـSecret في Supabase. تفاصيل الخطأ: ${esc(msg.slice(0,220))}</div><p class="hint">مفتاح Gemini ما يتحطش في كود الصفحة.</p>`;
+      if (status) { status.textContent = 'تعذّر تحليل الوصف؛ تقدر تستخدم البحث اليدوي عن صنف واحد.'; status.classList.remove('hidden'); }
     }
-    if (!foodDatabaseLoaded) {
-      box.innerHTML = '<p class="text-xs" style="color:var(--ink2)">لسه دليل الأكل بيتحمّل. استنى ثواني وجرب تاني.</p>';
-      return;
-    }
-    let normalizedText = norm(text).replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/[،,؛;.!؟?]/g, ' ');
-    for (const group of foodSynonymGroups) {
-      const [a,b] = group;
-      normalizedText = normalizedText.replace(new RegExp(a, 'g'), b);
-    }
-    const tokens = foodTokens(normalizedText);
-    const candidates = (allFoods || []).map(food => {
-      const originalTokens = foodTokens(food.food_name || '');
-      const positions = [];
-      originalTokens.forEach(stored => {
-        const at = tokens.findIndex(spoken => foodTokenMatches(spoken, stored));
-        if (at >= 0 && !positions.includes(at)) positions.push(at);
-      });
-      const score = originalTokens.length ? positions.length / originalTokens.length : 0;
-      return { food, originalTokens, positions, score };
-    }).filter(x => x.positions.length > 0 && x.score >= (x.originalTokens.length > 1 ? 0.75 : 1))
-      .sort((a,b) => b.score - a.score || b.positions.length - a.positions.length || b.originalTokens.length - a.originalTokens.length);
-
-    const chosen = [], usedPositions = new Set();
-    for (const c of candidates) {
-      if (c.positions.some(i => usedPositions.has(i))) continue;
-      chosen.push({ food: c.food, quantity: spokenQuantity(tokens, c.positions) });
-      c.positions.forEach(i => usedPositions.add(i));
-    }
-    window.__mealDraft = chosen;
-    if (!chosen.length) {
-      box.innerHTML = '<div class="p-3 rounded-xl text-sm" style="background:#fff7ed;color:#9a3412;border:1px solid #fed7aa">ملقيناش أكل معروف في الدليل من الكلام ده. جرّب تكتب اسم الأكلة بشكل أبسط، أو ابحث عنها تحت وأضفها يدويًا.</div>';
-      return;
-    }
-
-    const missing = item => ['calories','protein','carbs','fats'].some(k => item[k] === null || item[k] === undefined || item[k] === '' || !Number.isFinite(Number(item[k])));
-    const complete = chosen.filter(x => !missing(x.food));
-    const total = complete.reduce((a,x) => {
-      const q = x.quantity;
-      a.cal += Number(x.food.calories) * q; a.p += Number(x.food.protein) * q;
-      a.c += Number(x.food.carbs) * q; a.f += Number(x.food.fats) * q; return a;
-    }, {cal:0,p:0,c:0,f:0});
-    const cards = chosen.map((x,i) => {
-      const f = x.food, bad = missing(f);
-      return `<div class="p-3 rounded-xl" style="background:#fff;border:1px solid var(--line)">
-        <div class="flex items-center justify-between gap-2"><b class="text-sm">${esc(f.food_name)}</b><span class="text-[11px]" style="color:var(--ink2)">${esc(f.serving || 'حصة واحدة')}</span></div>
-        <div class="grid grid-cols-[1fr_90px] gap-2 items-center mt-2"><span class="text-xs" style="color:var(--ink2)">الكمية (حصة)</span><input class="input" type="number" min="0.25" max="20" step="0.25" value="${x.quantity}" data-spoken-qty="${i}" oninput="updateSpokenMealTotals()" aria-label="كمية ${esc(f.food_name)} بالحصة"></div>
-        <div class="text-[11px] mt-2" style="color:var(--ink2)">للحصة: ${bad ? 'فيه قيم ناقصة' : `${r1(f.calories)} سعرة · بروتين ${r1(f.protein)} جم · كارب ${r1(f.carbs)} جم · دهون ${r1(f.fats)} جم`}</div>
-        ${bad ? '<p class="text-xs mt-1 font-bold" style="color:#b45309">بيانات الصنف ناقصة في الدليل؛ مش هنتعامل مع الناقص على إنه صفر.</p>' : ''}
-      </div>`;
-    }).join('');
-    box.innerHTML = `<h4 class="font-black text-sm mb-2">الأكلات اللي لقيناها في الدليل</h4><div class="grid gap-2">${cards}</div>
-      <div id="spoken-meal-total" class="p-3 mt-3 rounded-xl text-sm" style="background:var(--soft)"><b>الإجمالي للأصناف المكتملة:</b> ${r1(total.cal)} سعرة · بروتين ${r1(total.p)} جم · كارب ${r1(total.c)} جم · دهون ${r1(total.f)} جم</div>
-      ${chosen.some(x => missing(x.food)) ? '<p class="text-xs mt-2 font-bold" style="color:#b45309">فيه صنف بياناته ناقصة؛ كمّل بياناته في دليل الأكل قبل تسجيل الوجبة عشان الإجمالي يبقى كامل.</p>' : '<p class="hint">القيم محسوبة من بيانات الحصة المحفوظة. عدّل عدد الحصص لو الكمية اللي أكلتها مختلفة.</p>'}
-      <button type="button" class="btn btn-primary w-full mt-3" onclick="saveSpokenMeal()" ${chosen.some(x => missing(x.food)) ? 'disabled' : ''}>سجّل الوجبة دي</button>`;
-    window.updateSpokenMealTotals();
   };
 
-  window.updateSpokenMealTotals = function () {
+  window.updateParsedMealChoice = function (select) {
+    const i = Number(select.dataset.parsedChoice);
     const draft = window.__mealDraft || [];
-    const box = document.getElementById('spoken-meal-total');
+    if (!draft[i]) return;
+    draft[i].choiceIndex = Number(select.value) || 0;
+    draft[i].quantity = servingsFromParsedAmount(draft[i].parsed, draft[i].choices[draft[i].choiceIndex]);
+    renderParsedMealDraft();
+  };
+
+  window.updateParsedMealTotals = function () {
+    const box = document.getElementById('parsed-meal-total');
+    const draft = window.__mealDraft || [];
     if (!box || !draft.length) return;
-    const total = {cal:0,p:0,c:0,f:0};
+    const total = { calories:0, protein:0, carbs:0, fats:0 };
+    let incomplete = false;
     draft.forEach((item,i) => {
-      const input = document.querySelector(`[data-spoken-qty="${i}"]`);
-      const qty = Number(input && input.value);
-      if (!(qty > 0 && qty <= 20)) return;
-      total.cal += Number(item.food.calories) * qty;
-      total.p += Number(item.food.protein) * qty;
-      total.c += Number(item.food.carbs) * qty;
-      total.f += Number(item.food.fats) * qty;
+      const food = item.choices[item.choiceIndex || 0];
+      const input = document.querySelector(`[data-parsed-qty="${i}"]`);
+      const quantity = Number(input?.value);
+      if (!food || !(quantity > 0 && quantity <= 20) || ['calories','protein','carbs','fats'].some(k => foodMacro(food,k) === null)) { incomplete = true; return; }
+      item.quantity = quantity;
+      total.calories += foodMacro(food,'calories') * quantity;
+      total.protein += foodMacro(food,'protein') * quantity;
+      total.carbs += foodMacro(food,'carbs') * quantity;
+      total.fats += foodMacro(food,'fats') * quantity;
     });
-    box.innerHTML = `<b>الإجمالي حسب الكمية:</b> ${r1(total.cal)} سعرة · بروتين ${r1(total.p)} جم · كارب ${r1(total.c)} جم · دهون ${r1(total.f)} جم`;
+    box.innerHTML = `<b>الإجمالي ${incomplete ? 'للأصناف المكتملة فقط' : 'للوصف'}:</b> ${r1(total.calories)} سعرة · بروتين ${r1(total.protein)} جم · كارب ${r1(total.carbs)} جم · دهون ${r1(total.fats)} جم`;
   };
 
-  window.saveSpokenMeal = async function () {
+  window.searchParsedMealItem = function (index) {
+    const item = (window.__mealDraft || [])[index];
+    if (!item) return;
+    document.getElementById('meal-search').value = item.parsed.name;
+    renderMealResults();
+    document.getElementById('meal-search').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  window.saveParsedMeal = async function () {
     const draft = window.__mealDraft || [];
-    if (!draft.length || !currentUser) { alert('سجّل الدخول واكتب وصف أكلة موجودة في الدليل الأول.'); return; }
-    const rows = draft.map((item,i) => {
-      const qtyInput = document.querySelector(`[data-spoken-qty="${i}"]`);
-      const qty = Number(qtyInput && qtyInput.value);
-      if (!(qty > 0 && qty <= 20)) return null;
-      const f = item.food;
-      return { user_id: currentUser.id, log_date: todayStr(), meal_type: document.getElementById('meal-category').value,
-        food_name: f.food_name, serving: f.serving || 'حصة واحدة', quantity: qty,
-        calories: r1(Number(f.calories) * qty), protein: r1(Number(f.protein) * qty),
-        carbs: r1(Number(f.carbs) * qty), fats: r1(Number(f.fats) * qty), source: 'voice_lookup' };
-    });
-    if (rows.some(r => !r) || !rows.length) { alert('اكتب كمية صحيحة لكل صنف، من 0.25 إلى 20 حصة.'); return; }
-    const button = document.querySelector('#meal-description-results button[onclick="saveSpokenMeal()"]');
+    if (!currentUser || !draft.length) return;
+    const rows = [];
+    for (let i=0; i<draft.length; i++) {
+      const item = draft[i], food = item.choices[item.choiceIndex || 0];
+      const qty = Number(document.querySelector(`[data-parsed-qty="${i}"]`)?.value);
+      if (!food || !(qty > 0 && qty <= 20) || ['calories','protein','carbs','fats'].some(k => foodMacro(food,k) === null)) {
+        alert('اختار مصدر بيانات مكتمل لكل صنف واكتب كمية صحيحة قبل التسجيل.'); return;
+      }
+      rows.push({ user_id: currentUser.id, log_date: todayStr(), meal_type: document.getElementById('meal-category').value,
+        food_name: food.food_name, serving: food.serving || 'حصة واحدة', quantity: qty,
+        calories: r1(foodMacro(food,'calories') * qty), protein: r1(foodMacro(food,'protein') * qty),
+        carbs: r1(foodMacro(food,'carbs') * qty), fats: r1(foodMacro(food,'fats') * qty), source: 'text_lookup' });
+    }
+    const button = document.querySelector('#meal-description-results button[onclick="saveParsedMeal()"]');
     if (button) button.disabled = true;
     try {
       const { error } = await db.from('meal_logs').insert(rows);
       if (error) throw error;
       document.getElementById('meal-description').value = '';
       document.getElementById('meal-description-results').classList.add('hidden');
-      document.getElementById('meal-capture-status').textContent = 'اتسجلت الوجبة واتحسبت من بيانات الدليل.';
+      document.getElementById('meal-capture-status').textContent = 'اتسجلت الأصناف بعد المراجعة، والقيم اتحسبت من مصادر البيانات.';
       document.getElementById('meal-capture-status').classList.remove('hidden');
       window.__mealDraft = [];
       await fetchToday(); renderToday();
     } catch (error) {
-      alert('ما قدرناش نسجّل الوجبة: ' + error.message);
+      console.error(error);
+      alert('ما قدرناش نسجّل الوجبة: ' + (error.message || error));
       if (button) button.disabled = false;
     }
   };
