@@ -403,6 +403,10 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
 @media(max-width:600px){.builder-plate{width:min(100%,240px);aspect-ratio:1.45}.builder-plate-bite{width:32px;height:32px;font-size:20px}.sleep-character-orbit.is-asleep{width:min(100%,280px);height:150px}.sleep-character-orbit.is-asleep img{width:100%;height:146px}.sleep-habit-copy strong{font-size:10px}.sleep-habit-copy small{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.builder-plate-bite,.builder-plate,.sleep-avoid-card,.sleep-avoid-check,.sleep-character-orbit,.sleep-character-orbit img{animation:none!important;transition:none!important}}
 
+
+.sleep-top-actions{display:flex;align-items:center;gap:8px}.sleep-replay{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #e8e5f6;border-radius:11px;background:#fff;color:#625ab4;font:inherit;font-size:10px;font-weight:900;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}.sleep-replay:hover{background:#f6f4ff;border-color:#cfc8f5;transform:translateY(-1px)}.sleep-replay span{font-size:15px;line-height:1}
+@media(max-width:480px){.sleep-top-actions{gap:5px}.sleep-back,.sleep-replay{padding:7px 9px;font-size:9px}}
+
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -776,7 +780,7 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
 
 <section id="sleep-section" class="hidden sleep-page" aria-labelledby="sleep-title">
   <div class="sleep-topbar">
-    <button type="button" class="sleep-back" onclick="closeSleepPage()"><svg class="i"><use href="#i-search"/></svg><span>العودة للوحة</span></button>
+    <div class="sleep-top-actions"><button type="button" class="sleep-back" onclick="closeSleepPage()"><svg class="i"><use href="#i-search"/></svg><span>العودة للوحة</span></button><button type="button" class="sleep-replay" onclick="resetSleepChecklist(true)" aria-label="إعادة تجربة رحلة النوم"><span aria-hidden="true">↻</span> إعادة التجربة</button></div>
     <span class="sleep-top-label"><span class="sleep-status-dot"></span> دليلك لنوم أهدى</span>
   </div>
   <header class="sleep-hero">
@@ -816,7 +820,7 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
   <section class="sleep-checklist card">
     <div class="sleep-checklist-head"><div><span class="sleep-eyebrow sleep-eyebrow-light">اختيارك لليلة</span><h2>روتينك الهادي يبدأ بخطوة</h2><p id="sleep-progress-text">اختار عادة للتهدئة؛ الرسمة تتابع تقدمك مش بتضمن النوم فورًا.</p></div><div class="sleep-progress-number"><strong id="sleep-progress-count">0</strong><span>/ 5</span></div></div>
     <div class="sleep-progress-track"><span id="sleep-progress-bar"></span></div>
-    <button type="button" class="sleep-reset-checklist" onclick="resetSleepChecklist()">ابدأ من جديد</button>
+    <button type="button" class="sleep-reset-checklist" onclick="resetSleepChecklist(true)">ابدأ من جديد</button>
   </section>
 
   <aside class="sleep-supplement-note"><span class="sleep-note-icon">!</span><div><strong>ملاحظة مهمة عن المكملات</strong><p>المغنيسيوم والفيتامينات مش حل عام لمشاكل النوم. ما تبدأش مكمل عشان النوم من نفسك؛ اسأل طبيب أو صيدلي، خصوصًا لو بتاخد أدوية أو عندك حالة صحية.</p></div></aside>
@@ -2087,7 +2091,7 @@ document.querySelectorAll('[data-sleep-avoid]').forEach(button=>button.addEventL
   try{localStorage.setItem(sleepStorageKey(),JSON.stringify(sleepChecks))}catch(_){}
   renderSleepChecks();
 }));
-function resetSleepChecklist(){sleepChecks={};try{localStorage.removeItem(sleepStorageKey())}catch(_){}renderSleepChecks()}
+function resetSleepChecklist(replay=false){sleepChecks={};try{localStorage.removeItem(sleepStorageKey())}catch(_){}renderSleepChecks();if(replay){const title=$('sleep-title');if(title)title.scrollIntoView({behavior:'smooth',block:'start'});const feedback=$('sleep-progress-text');if(feedback)feedback.textContent='اتمسحت اختياراتك — جرّب الرحلة من الأول.';}}
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('sleep-section').classList.contains('hidden'))closeSleepPage()});
 
 
