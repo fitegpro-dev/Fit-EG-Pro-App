@@ -173,6 +173,39 @@ header img{max-height:42px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
+
+/* ===== polished shortcuts and motion pass ===== */
+.dashboard-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:9px}
+.dashboard-shortcut{min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 14px;border:1px solid #e4e9f1;border-radius:14px;background:#fff;color:#344054;font:inherit;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 2px 5px rgba(16,24,40,.03);transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s,border-color .2s,background .2s}
+.dashboard-shortcut .i{width:17px;height:17px}
+.dashboard-shortcut:hover{transform:translateY(-2px);box-shadow:0 7px 16px rgba(25,42,75,.10)}
+.dashboard-shortcut:active{transform:translateY(0) scale(.98)}
+.dashboard-shortcut:focus-visible,.weekly-close:focus-visible,.weekly-launch:focus-visible{outline:3px solid rgba(89,103,232,.28);outline-offset:2px}
+.water-shortcut{color:#147b9c;background:#f2fbfd;border-color:#d8f0f5}
+.water-shortcut:hover{background:#eaf8fc;border-color:#b9e5ee}
+.data-shortcut{color:#4f5bc0;background:#f7f7ff;border-color:#e5e7fb}
+.data-shortcut:hover{background:#f0f1ff;border-color:#cfd4fa}
+.shortcut-value{min-width:24px;padding:3px 6px;border-radius:8px;background:#fff;font-size:10px;color:#526174;text-align:center}
+#dashboard-section>*{animation:dash-enter .55s cubic-bezier(.2,.75,.25,1) both}
+#dashboard-section>*:nth-child(2){animation-delay:.06s}
+#dashboard-section>*:nth-child(3){animation-delay:.12s}
+#dashboard-section>*:nth-child(4){animation-delay:.18s}
+#dashboard-section>*:nth-child(5){animation-delay:.24s}
+@keyframes dash-enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+#dashboard-section .progress>span{transition:width .8s cubic-bezier(.2,.75,.25,1)}
+#water-mini-bar{transition:width .7s cubic-bezier(.2,.75,.25,1)!important}
+.dashboard-shortcut:focus-visible{outline:3px solid rgba(89,103,232,.28);outline-offset:2px}
+@media(max-width:640px){.dashboard-actions{width:100%;justify-content:flex-start}.dashboard-shortcut{flex:1}.goal-chip{order:3}}
+@media(prefers-reduced-motion:reduce){#dashboard-section>*,.dashboard-shortcut,#dashboard-section .progress>span,#water-mini-bar{animation:none!important;transition:none!important}}
+
+
+/* ===== subtle logo motion ===== */
+header [data-logo]{transform-origin:center;animation:logo-float 4.8s ease-in-out infinite;transition:filter .25s ease,transform .25s ease}
+header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));transform:scale(1.045)}
+#landing [data-logo]{transform-origin:center;animation:logo-float 5.6s ease-in-out infinite;will-change:transform}
+@keyframes logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){[data-logo]{animation:none!important;will-change:auto!important;transition:none!important}}
+
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -332,9 +365,10 @@ header img{max-height:42px}
 <section id="dashboard-section" class="hidden space-y-5 fade-in">
   <div class="flex flex-wrap items-end justify-between gap-3">
     <div><h2 class="text-xl sm:text-2xl font-black">أهلاً <span id="user-name" class="grad-text"></span></h2><p class="text-sm mt-1" style="color:var(--ink2)">ده ملخص خطتك اليومية</p></div>
-    <div class="flex flex-wrap items-center gap-2">
-      <span class="chip"><svg class="i" style="width:15px;height:15px"><use href="#i-dumbbell"/></svg> هدفك: <span id="goal-label">-</span></span>
-      <button type="button" class="btn btn-out btn-sm" onclick="startEdit()"><svg class="i" style="width:16px;height:16px"><use href="#i-edit"/></svg> تعديل بياناتي</button>
+    <div class="dashboard-actions">
+      <span class="chip goal-chip"><svg class="i" style="width:15px;height:15px"><use href="#i-dumbbell"/></svg> هدفك: <span id="goal-label">-</span></span>
+      <button type="button" class="dashboard-shortcut water-shortcut" onclick="openWaterModal()" aria-label="فتح متابعة المياه"><svg class="i"><use href="#i-drop"/></svg><span>المياه</span><span id="top-water-value" class="shortcut-value">0</span></button>
+      <button type="button" class="dashboard-shortcut data-shortcut" onclick="startEdit()" aria-label="عرض وتعديل بياناتي"><svg class="i"><use href="#i-user"/></svg><span>بياناتي</span></button>
     </div>
   </div>
 
@@ -940,6 +974,7 @@ function updateDailyTargets() {
   const body = $('water-body-fill'), bh = 196 * pct / 100; body.setAttribute('y', 204 - bh); body.setAttribute('height', bh);
   $('water-progress-bar').style.width = pct + '%'; $('water-progress-text').textContent = pct + '% من الهدف';
   $('water-mini-text').textContent = `${fmtL(water)} / ${goal.toFixed(1)} لتر · ${pct}%`; $('water-mini-bar').style.width = pct + '%';
+  const topWater = $('top-water-value'); if (topWater) topWater.textContent = `${fmtL(water)} لتر`;
 }
 function addWater(ml) {
   const el = $('daily-water'), cur = Math.max(0, Number(el.value) || 0);
