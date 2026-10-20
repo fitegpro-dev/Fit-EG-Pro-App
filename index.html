@@ -66,6 +66,30 @@ body{font-family:'Tajawal',sans-serif;color:var(--ink);background:radial-gradien
 .fab-msg{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:55;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#7c6cff,#4f8cff);box-shadow:0 10px 24px rgba(109,93,252,.4);transition:transform .2s}
 .fab-msg:hover{transform:scale(1.07)}
 .rc-card{padding:14px;border-radius:16px;background:#fff;border:1px solid var(--line)}
+  .weekly-launch{width:100%;display:flex;align-items:center;gap:14px;padding:17px 20px;text-align:right;cursor:pointer;font:inherit;color:var(--ink);border-radius:20px;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;background:linear-gradient(110deg,#fff 0%,#fbfaff 58%,#f1f5ff 100%)}
+  .weekly-launch:hover{transform:translateY(-2px);border-color:#d8d2ff;box-shadow:0 14px 30px rgba(79,70,229,.12)}
+  .weekly-launch-icon{width:48px;height:48px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;background:linear-gradient(135deg,#efedff,#eaf1ff);color:var(--brand)}
+  .weekly-launch-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+  .weekly-launch-copy strong{font-size:15px;font-weight:900}
+  .weekly-launch-copy small{font-size:12px;color:var(--ink2)}
+  .weekly-launch-action{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border-radius:12px;background:#fff;color:var(--brand);font-size:12px;font-weight:900;border:1px solid #e8e5ff;white-space:nowrap}
+  .weekly-modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,18,48,.48);backdrop-filter:blur(7px)}
+  .weekly-dialog{width:min(760px,100%);max-height:min(90vh,820px);overflow:auto;padding:22px;border-radius:24px;box-shadow:0 28px 90px rgba(18,16,48,.28);animation:fade .2s ease both}
+  .weekly-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .weekly-close{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink2);font-size:24px;line-height:1;cursor:pointer}
+  .weekly-close:hover{background:var(--soft);color:var(--brand)}
+  .weekly-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+  .weekly-stat{padding:14px;border:1px solid var(--line);border-radius:16px;background:#fafaff}
+  .weekly-stat-label{font-size:11px;color:var(--ink2);font-weight:700}
+  .weekly-stat-value{font-size:20px;font-weight:900;margin-top:5px;color:var(--ink)}
+  .weekly-chart-frame{padding:14px 10px 8px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fff,#fbfaff);overflow:hidden}
+  .weekly-chart-svg{display:block;width:100%;height:auto;min-height:210px;direction:ltr}
+  .weekly-legend{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:13px 4px 2px;font-size:11px;color:var(--ink2)}
+  .weekly-legend-item{display:inline-flex;align-items:center;gap:6px}
+  .weekly-legend-dot{width:10px;height:10px;border-radius:4px;display:inline-block}
+  .weekly-note{margin-top:12px;padding:11px 13px;border-radius:13px;background:#f7f6ff;color:var(--ink2);font-size:11px;line-height:1.7}
+  @media(max-width:560px){.weekly-launch{padding:13px;gap:10px}.weekly-launch-icon{width:42px;height:42px;border-radius:14px}.weekly-launch-action{padding:9px;font-size:0;gap:0}.weekly-launch-action svg{width:18px;height:18px}.weekly-dialog{padding:16px;border-radius:20px}.weekly-stats{gap:7px}.weekly-stat{padding:11px 9px}.weekly-stat-label{font-size:10px}.weekly-stat-value{font-size:17px}.weekly-chart-frame{padding:10px 5px 6px}.weekly-chart-svg{min-height:175px}}
+
   .sbar{display:flex;align-items:center;gap:4px;background:#fafbff;border:1.5px solid var(--line);border-radius:16px;padding:3px 12px 3px 6px;transition:border-color .2s,box-shadow .2s,background .2s}
   .sbar:focus-within{border-color:var(--brand);background:#fff;box-shadow:0 0 0 4px rgba(109,93,252,.12)}
   .sbar input{flex:1;min-width:0;border:0;background:transparent;padding:11px 8px;font:inherit;font-size:14px;color:var(--ink)}
@@ -102,6 +126,7 @@ body{font-family:'Tajawal',sans-serif;color:var(--ink);background:radial-gradien
 <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
 <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
 <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-5 5"/><path d="M15 9h4v4"/></symbol>
 <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2.7s6 6.2 6 10.8a6 6 0 0 1-12 0C6 8.9 12 2.7 12 2.7z"/></symbol>
 </defs></svg>
 
@@ -338,8 +363,25 @@ body{font-family:'Tajawal',sans-serif;color:var(--ink);background:radial-gradien
     <div id="day-report" class="mt-4 hidden"></div>
   </div>
 
-  <!-- ملخص أسبوعي -->
-  <div class="card p-5 sm:p-7" id="weekly-card"></div>
+  <!-- متابعة الأسبوع: الرسم مستقل ويفتح عند الطلب -->
+  <button type="button" id="weekly-card" class="weekly-launch card" onclick="openWeeklyModal()" aria-haspopup="dialog" aria-controls="weekly-modal">
+    <span class="weekly-launch-icon" aria-hidden="true"><svg class="i"><use href="#i-chart"/></svg></span>
+    <span class="weekly-launch-copy"><strong>متابعة الأسبوع</strong><small>شوف السعرات والالتزام خلال آخر 7 أيام</small></span>
+    <span class="weekly-launch-action">عرض الرسم البياني <svg class="i" style="width:17px;height:17px"><use href="#i-search"/></svg></span>
+  </button>
+
+  <div id="weekly-modal" class="weekly-modal hidden" onclick="if(event.target===this) closeWeeklyModal()" role="dialog" aria-modal="true" aria-labelledby="weekly-title">
+    <section class="weekly-dialog card">
+      <div class="weekly-dialog-head">
+        <div class="flex items-center gap-3">
+          <span class="weekly-launch-icon"><svg class="i"><use href="#i-chart"/></svg></span>
+          <div><h3 id="weekly-title" class="font-black text-lg">متابعة السعرات</h3><p id="weekly-period" class="text-xs mt-1" style="color:var(--ink2)"></p></div>
+        </div>
+        <button type="button" class="weekly-close" onclick="closeWeeklyModal()" aria-label="إغلاق الرسم">×</button>
+      </div>
+      <div id="weekly-chart-content" class="weekly-chart-content"></div>
+    </section>
+  </div>
 
   <!-- رحلة الشهر -->
   <div class="card p-5 sm:p-7">
@@ -894,16 +936,64 @@ async function closeDay() {
 function renderWeekly() {
   const days = [], now = parseYmd(todayStr());
   for (let i = 6; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i); days.push(d); }
-  const col = { green: '#22c55e', yellow: '#f59e0b', red: '#ef4444' };
+  const palette = { green: '#18a978', yellow: '#e8a832', red: '#ed6475' };
   const rows = days.map(d => ({ d, c: closures[ymd(d)] }));
-  const max = Math.max(1, ...rows.map(x => Math.max(x.c ? +x.c.calories : 0, x.c ? +x.c.target_calories : (targets ? targets.cals : 0))));
-  const H = 120, W = 300, bw = 26, gap = (W - bw * 7) / 6;
-  const bars = rows.map((x, i) => {
-    const xx = i * (bw + gap), h = x.c ? Math.max(3, +x.c.calories / max * H) : 0, th = (x.c ? +x.c.target_calories : (targets ? targets.cals : 0)) / max * H;
-    return `<rect x="${xx}" y="${H - th}" width="${bw}" height="${th}" rx="6" fill="#eceafb"/>` + (x.c ? `<rect x="${xx}" y="${H - h}" width="${bw}" height="${h}" rx="6" fill="${col[x.c.status]}"><title>${Math.round(x.c.calories)} سعرة</title></rect>` : '') + `<text x="${xx + bw / 2}" y="${H + 16}" text-anchor="middle" font-size="11" fill="#5b5880">${x.d.toLocaleDateString('ar-EG', { weekday: 'narrow' })}</text>`;
+  const logged = rows.filter(x => x.c);
+  const total = logged.reduce((sum, x) => sum + (Number(x.c.calories) || 0), 0);
+  const avg = logged.length ? Math.round(total / logged.length) : 0;
+  const targetAvg = logged.length ? Math.round(logged.reduce((sum, x) => sum + (Number(x.c.target_calories) || 0), 0) / logged.length) : (targets ? Math.round(targets.cals) : 0);
+  const onTrack = logged.filter(x => x.c.status === 'green').length;
+  const fmt = n => Number(n || 0).toLocaleString('ar-EG');
+  $('weekly-period').textContent = `${rows[0].d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })} — ${rows[6].d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })}`;
+
+  const W = 680, H = 250, left = 44, right = 12, top = 16, bottom = 38;
+  const plotW = W - left - right, plotH = H - top - bottom;
+  const max = Math.max(500, ...rows.map(x => Math.max(Number(x.c?.calories) || 0, Number(x.c?.target_calories) || (targets ? targets.cals : 0)))) * 1.14;
+  const y = value => top + plotH - (Math.max(0, value) / max) * plotH;
+  const step = plotW / 7, barW = Math.min(22, step * .27), gap = 5;
+  let grid = '';
+  for (let i = 0; i <= 4; i++) {
+    const val = max * i / 4, yy = y(val);
+    grid += `<line x1="${left}" y1="${yy}" x2="${W-right}" y2="${yy}" stroke="#eceafb" stroke-dasharray="3 5"/><text x="${left-7}" y="${yy+4}" text-anchor="end" font-size="10" fill="#8b88a8">${fmt(Math.round(val/100)*100)}</text>`;
+  }
+  const bars = rows.map((item, i) => {
+    const center = left + step * i + step / 2;
+    const actual = item.c ? Number(item.c.calories) || 0 : 0;
+    const target = Number(item.c?.target_calories) || (targets ? Number(targets.cals) : 0);
+    const actualX = center - barW - gap / 2, targetX = center + gap / 2;
+    const targetY = y(target), actualY = y(actual);
+    const actualH = item.c ? Math.max(3, top + plotH - actualY) : 0;
+    const targetH = target ? Math.max(3, top + plotH - targetY) : 0;
+    const actualColor = item.c ? (palette[item.c.status] || '#6d5dfc') : '#d9d7e8';
+    const dayName = item.d.toLocaleDateString('ar-EG', { weekday: 'short' });
+    return `${target ? `<rect x="${targetX}" y="${targetY}" width="${barW}" height="${targetH}" rx="6" fill="#e9e6ff"><title>الهدف: ${fmt(target)} سعرة</title></rect>` : ''}${item.c ? `<rect x="${actualX}" y="${actualY}" width="${barW}" height="${actualH}" rx="6" fill="${actualColor}"><title>المسجل: ${fmt(actual)} سعرة</title></rect>` : `<circle cx="${center}" cy="${top+plotH-3}" r="3" fill="#d9d7e8"><title>لم يتم إغلاق اليوم</title></circle>`}<text x="${center}" y="${H-11}" text-anchor="middle" font-size="11" font-weight="700" fill="#5b5880">${dayName}</text>`;
   }).join('');
-  $('weekly-card').innerHTML = `<h3 class="font-black text-base">ملخص آخر 7 أيام</h3><p class="text-xs mb-3" style="color:var(--ink2)">العمود الملوّن = سعراتك الفعلية، والرمادي = هدفك</p><div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H + 24}" style="width:100%;max-width:520px;direction:ltr" role="img" aria-label="رسم السعرات الأسبوعي">${bars}</svg></div>`;
+
+  $('weekly-chart-content').innerHTML = `
+    <div class="weekly-stats">
+      <div class="weekly-stat"><div class="weekly-stat-label">متوسط السعرات المسجلة</div><div class="weekly-stat-value">${fmt(avg)} <span class="text-xs font-bold" style="color:var(--ink2)">سعرة</span></div></div>
+      <div class="weekly-stat"><div class="weekly-stat-label">أيام تم تسجيلها</div><div class="weekly-stat-value">${fmt(logged.length)} <span class="text-xs font-bold" style="color:var(--ink2)">من 7</span></div></div>
+      <div class="weekly-stat"><div class="weekly-stat-label">أيام ضمن الهدف</div><div class="weekly-stat-value">${fmt(onTrack)} <span class="text-xs font-bold" style="color:var(--ink2)">يوم</span></div></div>
+    </div>
+    <div class="weekly-chart-frame"><svg class="weekly-chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="مقارنة السعرات الفعلية والهدف لآخر سبعة أيام">${grid}${bars}</svg></div>
+    <div class="weekly-legend"><span class="weekly-legend-item"><i class="weekly-legend-dot" style="background:#18a978"></i>ضمن الهدف</span><span class="weekly-legend-item"><i class="weekly-legend-dot" style="background:#e8a832"></i>قريب من الهدف</span><span class="weekly-legend-item"><i class="weekly-legend-dot" style="background:#ed6475"></i>بعيد عن الهدف</span><span class="weekly-legend-item"><i class="weekly-legend-dot" style="background:#e9e6ff;border:1px solid #d6d0ff"></i>الهدف اليومي (${fmt(targetAvg)} سعرة متوسطًا)</span></div>
+    <p class="weekly-note">الأعمدة الملوّنة تعرض السعرات المسجلة في الأيام المقفولة، والعمود البنفسجي الفاتح يوضح الهدف اليومي. الأيام غير المسجلة تظهر بدون عمود فعلي.</p>`;
 }
+function openWeeklyModal() {
+  renderWeekly();
+  $('weekly-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  $('weekly-modal').querySelector('.weekly-close').focus();
+}
+function closeWeeklyModal() {
+  $('weekly-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+  $('weekly-card').focus();
+}
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !$('weekly-modal').classList.contains('hidden')) closeWeeklyModal();
+});
+
 async function fetchMonth() {
   if (!currentUser) return;
   const [c, w] = await Promise.all([db.from('day_closures').select('*').eq('user_id', currentUser.id).order('day'), db.from('weight_log').select('*').eq('user_id', currentUser.id).order('logged_at')]);
