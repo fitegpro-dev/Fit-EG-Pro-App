@@ -1198,12 +1198,17 @@ async function handlePhoto(ev) {
     if (error) throw error;
     let text = (data && typeof data.text === 'string') ? data.text.trim() : '';
     if (!text && data && Array.isArray(data.items)) text = data.items.map(x => typeof x === 'string' ? x : (x && x.name) || '').filter(Boolean).join('، ');
-    if (!text) throw new Error('empty');
+    if (!text) throw new Error('Gemini رجّع رد فاضي (يمكن الصورة مش واضحة إنها أكل)');
     $('meal-search').value = text; fromPhoto = true; onSmartInput();
     setStatus('اتعرفنا على الأصناف واتكتبت فوق. عدّل النص لو في غلط وبعدين دوس "حلّل وقسّم".');
   } catch (e) {
     console.warn('photo analysis unavailable', e);
-    setStatus('التعرف التلقائي على الصورة مش شغال لسه. الصورة قدامك، اكتب أصناف الأكلة في الخانة وكمّل عادي.');
+    let detail = '';
+    try {
+      if (e && e.context && typeof e.context.json === 'function') { const b = await e.context.json(); detail = (b && (b.error || b.message)) || JSON.stringify(b); }
+      else detail = (e && e.message) || String(e);
+    } catch (_) { detail = (e && e.message) || ''; }
+    setStatus('تعذّر التعرف على الصورة. السبب: ' + (detail || 'غير معروف') + ' — اكتب الأصناف بإيدك وكمّل عادي.');
     $('meal-search').focus();
   }
 }
