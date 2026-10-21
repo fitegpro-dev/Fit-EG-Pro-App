@@ -1756,8 +1756,26 @@ async function autoSaveMealDraft(draft) {
     });
   }
 
-  const { error } = await db.from('meal_logs').insert(rows);
-  if (error) throw error;
+  let insertError = null;
+  try {
+    const result = await db.from('meal_logs').insert(rows);
+    insertError = result.error || null;
+  } catch (error) {
+    insertError = error;
+  }
+  if (insertError) {
+    console.error('Supabase meal_logs insert rejected:', insertError);
+    const code = String(insertError.code || '');
+    const details = [insertError.message, insertError.details, insertError.hint].filter(Boolean).join(' — ');
+    const reason = code === '42501' || /row.level security|permission denied/i.test(details)
+      ? 'صلاحيات قاعدة البيانات (RLS) منعت إضافة الوجبة.'
+      : /column .* does not exist|could not find the .* column|schema cache/i.test(details)
+        ? 'أعمدة جدول meal_logs لا تطابق الأعمدة التي يرسلها الموقع.'
+        : 'Supabase رفض إدخال سجل الوجبة.';
+    showMealAnalysisError(`${reason}${code ? ` كود ${esc(code)}.` : ''} التفاصيل: ${esc(details || 'مافيش تفاصيل في رد الخادم')}`);
+    setStatus('الوجبة لم تُسجّل. افتح تفاصيل الخطأ الظاهرة لمعرفة الإصلاح المطلوب.');
+    return false;
+  }
 
   const total = rows.reduce((sum, row) => sum + Number(row.calories || 0), 0);
   const names = rows.map(row => row.food_name);
@@ -1771,7 +1789,14 @@ async function autoSaveMealDraft(draft) {
   box.innerHTML = `<div class="p-4 rounded-2xl" style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46"><b>اتحللت واتضافت الوجبة تلقائيًا</b><div class="text-xs mt-1">${names.map(esc).join('، ')} · الإجمالي حوالي ${Math.round(total)} سعرة.</div></div>`;
   setStatus('✓ الوجبة اتحفظت في حسابك.');
   window.__mealDraft = [];
-  await fetchToday(); renderToday();
+  // The insert is already committed at this point. Refresh failures must not be reported as a failed save.
+  try {
+    await fetchToday();
+    renderToday();
+  } catch (refreshError) {
+    console.error('Meal was saved, but dashboard refresh failed:', refreshError);
+    setStatus('الوجبة اتحفظت بالفعل، لكن تحديث لوحة اليوم اتأخر. اعمل تحديث للصفحة عشان تظهر.');
+  }
   return true;
 }
 
@@ -1826,8 +1851,10 @@ async function analyzeMealDescription() {
     await autoSaveMealDraft(draft);
   } catch (error) {
     console.error('Automatic meal add failed:', error);
-    showMealAnalysisError('فهمنا الوجبة لكن ما قدرناش نحفظها في قاعدة البيانات. جرّب تاني؛ لو استمرت المشكلة افحص صلاحيات جدول meal_logs.');
-    setStatus('فشل الحفظ. الوجبة لم تُسجّل.');
+    const detail = [error && error.message, error && error.details, error && error.hint].filter(Boolean).join(' — ');
+    const code = error && error.code ? ` (كود ${esc(error.code)})` : '';
+    showMealAnalysisError(`حصل خطأ أثناء إضافة الوجبة${code}: ${esc(detail || 'مافيش تفاصيل إضافية. افتح Console في المتصفح لمراجعة الخطأ.')}`);
+    setStatus('حصل خطأ أثناء الحفظ. راجع تفاصيل الرسالة الظاهرة.');
   } finally {
     mealAnalysisInProgress = false;
     if (button) { button.disabled = false; button.innerHTML = '<svg class="i" style="width:16px;height:16px"><use href="#i-zap"/></svg> حلّل الوجبة وأضفها'; }
