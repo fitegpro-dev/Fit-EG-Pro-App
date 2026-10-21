@@ -624,10 +624,11 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
       </div>
 
     <div id="smart-box">
-    <label class="flabel" for="meal-search">سجّل أكلك</label>
+    <label class="flabel" for="meal-search">اكتب أكلك والكمية بطريقتك</label>
+    <p class="text-xs mb-2" style="color:var(--ink2)">اكتب جملة عادية زي: «بيضتين ورغيف عيش وكوباية شاي بلبن» أو «200 جرام فراخ و5 معالق رز». Gemini هيفهم الأصناف والكمية، وبعدها نراجع القيم من دليل الأكل.</p>
     <div class="sbar">
       <svg class="i" style="color:#a9a7c4"><use href="#i-search"/></svg>
-      <input id="meal-search" type="text" autocomplete="off" enterkeyhint="search" placeholder="اكتب أو قول أكلتك: فراخ، بيضتين وعيش..." oninput="onSmartInput()" onkeydown="mealSearchKey(event)">
+      <input id="meal-search" type="text" autocomplete="off" enterkeyhint="go" placeholder="مثال: بيضتين وعيش وكوباية شاي بلبن" oninput="onSmartInput()" onkeydown="mealSearchKey(event)" aria-describedby="meal-search-help">
       <button type="button" id="mic-btn" class="sbtn" onclick="toggleVoice()" aria-label="اكتب بالصوت"><svg class="i"><use href="#i-mic"/></svg></button>
       <button type="button" id="cam-btn" class="sbtn" onclick="toggleCamMenu()" aria-label="صوّر الأكلة"><svg class="i"><use href="#i-camera"/></svg></button>
     </div>
@@ -639,9 +640,10 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
     <input id="gal-input" type="file" accept="image/*" class="hidden">
     <div id="meal-capture-status" class="hidden text-xs font-bold mt-2" style="color:var(--brand)" aria-live="polite"></div>
     <div id="meal-photo-preview" class="hidden mt-2"></div>
-    <div id="analyze-bar" class="hidden mt-3 p-3 rounded-2xl flex items-center justify-between gap-3" style="background:var(--soft);border:1px solid var(--line)">
-      <span class="text-xs font-bold" style="color:var(--ink2)">الكلام فيه أكتر من صنف؟ راجع النص وبعدين:</span>
-      <button type="button" class="btn btn-primary btn-sm" onclick="analyzeMealDescription()"><svg class="i" style="width:16px;height:16px"><use href="#i-search"/></svg> حلّل وقسّم</button>
+    <div id="meal-search-help" class="hint">اكتب الكمية زي ما بتقولها: عدد، جرام، كوب، معلقة أو رغيف. مفيش خانة كمية منفصلة.</div>
+    <div id="analyze-bar" class="hidden mt-3 p-3 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3" style="background:linear-gradient(135deg,#f4f2ff,#eef5ff);border:1px solid #e1e5ff">
+      <span class="text-xs font-bold" style="color:var(--ink2)">هنفهم الجملة ونحوّل الكميات تلقائيًا، وبعدها تراجع الأصناف والقيم.</span>
+      <button type="button" class="btn btn-primary btn-sm" onclick="analyzeMealDescription()"><svg class="i" style="width:16px;height:16px"><use href="#i-zap"/></svg> حلّل الكمية واحسب الوجبة</button>
     </div>
     <div id="meal-cats" class="flex gap-2 overflow-x-auto pb-1 mt-3"></div>
     <div id="meal-results" class="mt-2 grid gap-2 overflow-y-auto" style="max-height:24rem"></div>
@@ -1485,7 +1487,7 @@ function renderRecipes() {
 }
 renderRecipes();
 
-const YT = [['6hZGadY2BUM', 'مثال ليوم كامل للعشر نصائح | حلو وحادق حلقة كاملة'], ['UYnqTo0gw9k', 'عجة مشبعة للدايت | سالي فؤاد'], ['fu411a2y1AE', 'مشروب الكاكاو الدايت بالشوفان | سالي فؤاد'], ['WupWWXXN450', 'فتة باذنجان دايت | سالي فؤاد'], ['8767DyvPoxU', 'أرز أسمر دايت بالبصل والشبت - كفتة سمك دايت | سالي فؤاد'], ['adskCRC6v0s', 'طاجن تورلي دايت | سالي فؤاد'], ['FB8_dsxyf8s', 'خبز الطاسة بروتين عالي جدا للدايت و للشبع | سالي فؤاد'], ['NGoK1DJwIlQ', 'أسرع خبز أمليت مشبع بدون نشويات فطار وعشا | سالي فؤاد'], ['okS307Ua0t4', 'سناك خطير لجوع بالليل مناسب للدايت | سالي فؤاد'], ['U_BoBxW-qJs', 'بروتين بار بيتي | سالي فؤاد']];
+const YT = [['6hZGadY2BUM', 'مثال ليوم كامل للعشر نصائح | حلو وحادق حلقة كاملة'], ['UYnqTo0gw9k', 'عجة مشبعة للدايت | سالي فؤاد'], ['fu411a2y1AE', 'مشروب الكاكاو الدايت بالشوفان | سالي فؤاد'], ['WupWWXXN450', 'فتة باذنجان دايت | سالي فؤاد'], ['8767DyvPoxU', 'أرز أسمر دايت بالبصل والشبت - كفتة سمك دايت | سالي فؤاد']];
 const ytIcon = '<svg viewBox="0 0 24 18" width="22" height="17" aria-hidden="true"><path fill="#fff" d="M23.5 2.8a3 3 0 0 0-2.1-2.1C19.5.2 12 .2 12 .2S4.5.2 2.6.7A3 3 0 0 0 .5 2.8 31 31 0 0 0 0 9s0 3.8.5 6.2a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 9s0-3.8-.5-6.2ZM9.6 12.7V5.3L15.9 9Z"/></svg>';
 $('yt-list').innerHTML = YT.map(([id, title]) => `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 rounded-xl p-3 transition hover:-translate-y-0.5" style="border:1px solid var(--line);background:#fff"><span class="flex items-center justify-center rounded-xl flex-shrink-0" style="width:44px;height:34px;background:#ff0033">${ytIcon}</span><span class="flex-1 min-w-0"><span class="block text-sm font-extrabold">${esc(title)}</span><span class="block text-xs mt-0.5" style="color:var(--ink2)">اضغط لمشاهدة الفيديو على YouTube</span></span><span style="color:var(--ink2)" aria-hidden="true">↗</span></a>`).join('');
 function searchYouTubeRecipe(event) {
@@ -1503,18 +1505,42 @@ const STOP = new Set(['اكلت','اكل','اتناول','تناولت','فطر�
 const NUMW = { واحد: 1, واحده: 1, اتنين: 2, اثنين: 2, تنين: 2, تلاته: 3, ثلاثه: 3, اربعه: 4, خمسه: 5, نص: 0.5, نصف: 0.5 };
 
 function servingsFromParsedAmount(item, food) {
-  if (item.amount == null || !Number.isFinite(Number(item.amount))) return 1;
-  const amount = Number(item.amount), serving = String(food.serving || '').toLowerCase();
+  const amount = Number(item.amount);
+  if (item.amount == null || !Number.isFinite(amount) || amount <= 0) return 1;
+  const serving = String(food.serving || '').toLowerCase();
   const m = serving.match(/(\d+(?:[.,]\d+)?)\s*(جرام|جم|غرام|غ|g|مل|ml|قطعه|قطعة|حبه|حبة|حبات|بيضه|بيضة)/i);
+  const clamp = n => Math.max(0.05, Math.min(100, n));
   if (m) {
-    const base = Number(m[1].replace(',', '.')), tk = m[2].toLowerCase();
-    const sG = /^(g|غ|جم|جرام|غرام)$/.test(tk), sM = /^(ml|مل)$/.test(tk), sP = /(قطعه|قطعة|حبه|حبة|حبات|بيضه|بيضة)/.test(tk);
-    if ((['g','غ','جم','جرام','غرام'].includes(item.unit) && sG) || (['ml','مل'].includes(item.unit) && sM) || (item.unit === 'piece' && sP)) return Math.max(0.25, Math.min(20, amount / base));
+    const base = Number(m[1].replace(',', '.')), token = m[2].toLowerCase();
+    const sourceGrams = /^(g|غ|جم|جرام|غرام)$/.test(token);
+    const sourceMl = /^(ml|مل)$/.test(token);
+    const sourcePieces = /(قطعه|قطعة|حبه|حبة|حبات|بيضه|بيضة)/.test(token);
+    if (item.unit === 'g' && sourceGrams) return clamp(amount / base);
+    if (item.unit === 'ml' && sourceMl) return clamp(amount / base);
+    if (item.unit === 'piece' && sourcePieces) return clamp(amount / base);
+    // Gemini may provide total approximate grams for pieces or household measures.
+    const grams = Number(item.grams);
+    if (sourceGrams && Number.isFinite(grams) && grams > 0) return clamp(grams / base);
+    // Household volumes can map directly when the database portion is measured in ml.
+    const mlFactor = item.unit === 'cup' ? 240 : item.unit === 'tablespoon' ? 15 : item.unit === 'teaspoon' ? 5 : null;
+    if (sourceMl && mlFactor) return clamp((amount * mlFactor) / base);
   }
-  if (item.unit === 'serving' || item.unit === 'unknown' || item.unit === 'cup') return Math.max(0.25, Math.min(20, amount));
-  if (item.unit === 'piece' && /حبه|حبة|قطعه|قطعة|بيضه|بيضة/i.test(serving)) return Math.max(0.25, Math.min(20, amount));
+  // Countable foods use the database's one-piece serving when available.
+  if (item.unit === 'piece') return clamp(amount);
+  if (item.unit === 'serving' || item.unit === 'unknown') return clamp(amount);
+  // If the chosen source has no compatible portion unit, retain a conservative one-source-serving estimate.
   return 1;
 }
+
+function describeParsedQuantity(item, food, servings) {
+  if (item.amount == null || !Number.isFinite(Number(item.amount))) return 'ماحددش كمية؛ اتحسبت حصة واحدة مبدئيًا';
+  const unit = MEAL_UNIT_LABELS[item.unit] || 'كمية';
+  const grams = Number(item.grams);
+  const converted = Number.isFinite(grams) && grams > 0 ? ` (تحويل تقريبي ${r1(grams)} جم)` : '';
+  const serving = food.serving || 'الحصة المسجلة';
+  return `${r1(item.amount)} ${unit}${converted} ← ${r1(servings)} × ${serving}`;
+}
+
 function foodMacro(food, key) {
   if (!food) return null; const v = food[key];
   return (v === null || v === undefined || v === '' || !Number.isFinite(Number(v))) ? null : Number(v);
@@ -1565,13 +1591,16 @@ function updateParsedMealChoice(select) {
 function updateParsedMealTotals() {
   const box = $('parsed-meal-total'), draft = window.__mealDraft || []; if (!box || !draft.length) return;
   const tot = { calories: 0, protein: 0, carbs: 0, fats: 0 }; let inc = false;
-  draft.forEach((it, i) => {
-    const f = it.choices[it.choiceIndex || 0], q = Number(document.querySelector(`[data-parsed-qty="${i}"]`)?.value);
-    if (!f || !(q > 0 && q <= 20) || MACROS.some(k => foodMacro(f, k) === null)) { inc = true; return; }
-    it.quantity = q; MACROS.forEach(k => { tot[k] += foodMacro(f, k) * q; });
+  draft.forEach(it => {
+    const f = it.choices[it.choiceIndex || 0];
+    const q = f ? servingsFromParsedAmount(it.parsed, f) : 0;
+    it.quantity = q;
+    if (!f || !(q > 0 && q <= 100) || MACROS.some(k => foodMacro(f, k) === null)) { inc = true; return; }
+    MACROS.forEach(k => { tot[k] += foodMacro(f, k) * q; });
   });
-  box.innerHTML = `<b>الإجمالي ${inc ? 'للأصناف المكتملة فقط' : 'للوصف'}:</b> ${r1(tot.calories)} سعرة · بروتين ${r1(tot.protein)} جم · كارب ${r1(tot.carbs)} جم · دهون ${r1(tot.fats)} جم`;
+  box.innerHTML = `<b>إجمالي الكميات اللي فهمناها:</b> ${r1(tot.calories)} سعرة · بروتين ${r1(tot.protein)} جم · كارب ${r1(tot.carbs)} جم · دهون ${r1(tot.fats)} جم${inc ? '<p class="text-xs mt-1">الإجمالي مؤقت للأصناف اللي بياناتها كاملة فقط.</p>' : ''}`;
 }
+
 function searchParsedMealItem(i) {
   const it = (window.__mealDraft || [])[i]; if (!it) return;
   $('meal-search').value = it.parsed.name; renderMealResults(); $('meal-search').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1594,15 +1623,13 @@ function isMulti(t) {
 function updateAnalyzeBar() {
   const t = $('meal-search').value.trim();
   if (!t) { fromVoice = false; fromPhoto = false; }
-  $('analyze-bar').classList.toggle('hidden', !(t && (fromVoice || fromPhoto || isMulti(t))));
+  $('analyze-bar').classList.toggle('hidden', !t);
 }
-function onSmartInput() { updateAnalyzeBar(); renderMealResults(); }
+function onSmartInput() { updateAnalyzeBar(); $('meal-description-results').classList.add('hidden'); renderMealResults(); }
 function mealSearchKey(ev) {
   if (ev.key !== 'Enter') return;
   ev.preventDefault();
-  if (isMulti($('meal-search').value)) { analyzeMealDescription(); return; }
-  const first = document.querySelector('#meal-results [data-add], #meal-results [data-addoff]');
-  if (first) first.click();
+  if ($('meal-search').value.trim()) analyzeMealDescription();
 }
 
 /* ---------- البحث المباشر ---------- */
@@ -1721,13 +1748,14 @@ async function analyzeMealDescription() {
   if (!currentUser) { box.innerHTML = '<p class="text-xs" style="color:#b91c1c">سجّل الدخول الأول.</p>'; return; }
   if (!foodDatabaseLoaded) { box.innerHTML = '<p class="text-xs" style="color:var(--ink2)">دليل الأكل لسه بيتحمّل. استنى ثواني وجرّب تاني.</p>'; return; }
   $('meal-results').innerHTML = '';
-  box.innerHTML = '<p class="text-xs" style="color:var(--ink2)">بنفهم الجملة وبندوّر على كل صنف...</p>';
+  box.innerHTML = '<div class="p-4 rounded-2xl" style="background:#f4f6ff;border:1px solid #e1e5ff"><p class="text-sm font-bold">Gemini بيفهم الأصناف والكميات...</p><p class="text-xs mt-1" style="color:var(--ink2)">بعدها بنطابقها مع دليل الأكل ونحسب السعرات والقيم الغذائية.</p></div>';
   try {
     const { data, error } = await db.functions.invoke('parse-meal-description', { body: { text } });
     if (error) throw error;
     const items = (Array.isArray(data && data.items) ? data.items : []).slice(0, 8).map(x => ({
       name: String(x.name || '').trim().slice(0, 100),
       amount: x.amount !== null && x.amount !== undefined && Number.isFinite(Number(x.amount)) ? Number(x.amount) : null,
+      grams: x.grams !== null && x.grams !== undefined && Number.isFinite(Number(x.grams)) ? Number(x.grams) : null,
       unit: MEAL_UNIT_LABELS[x.unit] ? x.unit : 'unknown',
       searchTerms: Array.isArray(x.search_terms) ? x.search_terms.map(y => String(y || '').trim().slice(0, 100)).filter(Boolean).slice(0, 3) : []
     })).filter(x => x.name);
@@ -1758,19 +1786,20 @@ function renderParsedMealDraft() {
     const rm = `<button type="button" class="btn btn-out btn-sm" style="padding:4px 10px" onclick="removeParsedItem(${i})" aria-label="شيل الصنف">✕</button>`;
     if (!item.choices.length) return `<div class="p-3 rounded-xl" style="background:#fff7ed;border:1px solid #fed7aa"><div class="flex items-center justify-between gap-2"><b class="text-sm">ما لقيناش: ${esc(item.parsed.name)}</b>${rm}</div><p class="text-xs mt-1">ابحث عنه يدوي أو ضيفه بنفسك. مش هنخمّن قيمه الغذائية.</p><button type="button" class="btn btn-out btn-sm mt-2" onclick="searchParsedMealItem(${i})">ابحث عن الصنف</button></div>`;
     const si = Math.min(item.choiceIndex || 0, item.choices.length - 1), sel = item.choices[si];
-    const amountText = item.parsed.amount == null ? 'الكمية مش مذكورة' : `في كلامك: ${r1(item.parsed.amount)} ${MEAL_UNIT_LABELS[item.parsed.unit] || ''}`;
+    const amountText = item.parsed.amount == null ? 'الكمية مش مذكورة' : `الكمية اللي فهمناها: ${r1(item.parsed.amount)} ${MEAL_UNIT_LABELS[item.parsed.unit] || ''}`;
     const options = item.choices.map((f, j) => `<option value="${j}" ${j === si ? 'selected' : ''}>${esc(f.food_name)} — ${esc(f.serving || 'حصة واحدة')} · ${r1(f.calories)} سعرة</option>`).join('');
-    if (item.quantity == null) item.quantity = servingsFromParsedAmount(item.parsed, sel);
+    item.quantity = servingsFromParsedAmount(item.parsed, sel);
+    const conversion = describeParsedQuantity(item.parsed, sel, item.quantity);
     const incomplete = MACROS.some(k => foodMacro(sel, k) === null);
-    return `<div class="p-3 rounded-xl" style="background:#fff;border:1px solid var(--line)"><div class="flex items-center justify-between gap-2"><b class="text-sm">${esc(item.parsed.name)}</b><span class="flex items-center gap-2"><span class="text-[11px]" style="color:var(--ink2)">${esc(amountText)}</span>${rm}</span></div>
-      <label class="flabel mt-2" for="parsed-choice-${i}">اختار الصنف</label><select id="parsed-choice-${i}" class="input" data-parsed-choice="${i}" onchange="updateParsedMealChoice(this)">${options}</select>
-      <div class="grid grid-cols-[1fr_90px] gap-2 items-center mt-2"><label class="text-xs" for="parsed-qty-${i}" style="color:var(--ink2)">عدد الحصص (${esc(sel.serving || 'حصة')})</label><input id="parsed-qty-${i}" class="input" type="number" min="0.25" max="20" step="0.25" value="${item.quantity}" data-parsed-qty="${i}" oninput="updateParsedMealTotals()"></div>
+    return `<div class="p-4 rounded-2xl" style="background:#fff;border:1px solid var(--line);box-shadow:0 3px 12px rgba(30,45,80,.04)"><div class="flex items-center justify-between gap-2"><div><b class="text-sm">${esc(item.parsed.name)}</b><div class="text-xs mt-1" style="color:var(--ink2)">${esc(amountText)}</div></div>${rm}</div>
+      <label class="flabel mt-3" for="parsed-choice-${i}">اختار أقرب صنف من دليل الأكل</label><select id="parsed-choice-${i}" class="input" data-parsed-choice="${i}" onchange="updateParsedMealChoice(this)">${options}</select>
+      <div class="mt-2 p-2 rounded-xl text-xs font-bold" style="background:#f4f6ff;color:#4f5bc0">الكمية والحصة اتحسبوا تلقائيًا: ${esc(conversion)}</div>
       <div class="text-[11px] mt-2" style="color:var(--ink2)">للحصة: ${r1(sel.calories)} سعرة · بروتين ${r1(sel.protein)} · كارب ${r1(sel.carbs)} · دهون ${r1(sel.fats)}</div>
       ${incomplete ? '<p class="text-xs mt-1 font-bold" style="color:#b45309">القيم ناقصة للاختيار ده؛ اختار صنف بياناته كاملة.</p>' : ''}</div>`;
   }).join('');
-  const ok = draft.length > 0 && !missing.length && draft.every(it => { const f = it.choices[it.choiceIndex || 0]; return f && MACROS.every(k => foodMacro(f, k) !== null); });
-  box.innerHTML = `<h4 class="font-black text-sm mb-2">راجع الأصناف قبل التسجيل</h4><div class="grid gap-2">${cards}</div><div id="parsed-meal-total" class="p-3 mt-3 rounded-xl text-sm" style="background:var(--soft)"></div>
-    <p class="hint">القيم من دليل الأكل أو Open Food Facts. لو ما قلتش كمية بنبدأ بحصة واحدة.</p>
+  const ok = draft.length > 0 && !missing.length && draft.every(it => { const f = it.choices[it.choiceIndex || 0], q = it.quantity; return f && q > 0 && q <= 100 && MACROS.every(k => foodMacro(f, k) !== null); });
+  box.innerHTML = `<div class="p-4 rounded-2xl mb-3" style="background:linear-gradient(135deg,#eef2ff,#f7f9ff);border:1px solid #e3e8ff"><h4 class="font-black text-sm">فهمنا أكلك — راجع الأصناف والقيم</h4><p class="text-xs mt-1" style="color:var(--ink2)">مفيش خانات كمية؛ Gemini فهم المقدار من كلامك وحوّله تلقائيًا لحصة المصدر. اختار الصنف الأقرب لو فيه أكتر من اختيار.</p></div><div class="grid gap-3">${cards}</div><div id="parsed-meal-total" class="p-3 mt-3 rounded-xl text-sm" style="background:var(--soft)"></div>
+    <p class="hint">القيم الغذائية من دليل الأكل أو Open Food Facts. تحويل الكوب والمعلقة أو المقدار غير المطابق لحصة المصدر تقديري؛ راجع ملخص الكمية قبل التسجيل.</p>
     <button type="button" class="btn btn-primary w-full mt-3" onclick="saveParsedMeal()" ${ok ? '' : 'disabled'}><svg class="i"><use href="#i-check"/></svg> تم، سجّل الوجبة</button>`;
   updateParsedMealTotals();
   box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1780,8 +1809,8 @@ async function saveParsedMeal() {
   const draft = window.__mealDraft || []; if (!currentUser || !draft.length) return;
   const rows = [];
   for (let i = 0; i < draft.length; i++) {
-    const it = draft[i], f = it.choices[it.choiceIndex || 0], q = Number(document.querySelector(`[data-parsed-qty="${i}"]`)?.value);
-    if (!f || !(q > 0 && q <= 20) || MACROS.some(k => foodMacro(f, k) === null)) { alert('اختار صنف ببيانات كاملة واكتب كمية صحيحة لكل صنف، أو شيل الصنف.'); return; }
+    const it = draft[i], f = it.choices[it.choiceIndex || 0], q = f ? servingsFromParsedAmount(it.parsed, f) : 0;
+    if (!f || !(q > 0 && q <= 100) || MACROS.some(k => foodMacro(f, k) === null)) { alert('اختار صنف ببيانات غذائية كاملة، أو شيل الصنف اللي مش لاقيينه.'); return; }
     rows.push({ user_id: currentUser.id, log_date: todayStr(), meal_type: $('meal-category').value, food_name: f.food_name, serving: f.serving || 'حصة واحدة', quantity: q, calories: r1(f.calories * q), protein: r1(f.protein * q), carbs: r1(f.carbs * q), fats: r1(f.fats * q), source: 'text_lookup' });
   }
   const btn = document.querySelector('#meal-description-results button[onclick="saveParsedMeal()"]'); if (btn) btn.disabled = true;
