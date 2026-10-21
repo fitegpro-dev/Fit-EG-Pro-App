@@ -30,6 +30,8 @@ body{font-family:'Tajawal',sans-serif;color:var(--ink);background:radial-gradien
 .flabel{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:var(--ink)}
 .hint{font-size:11px;color:var(--ink2);margin-top:5px}
 .i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.landing-features .icon-box .i{stroke-width:2.8}
+.landing-features .feature-copy{font-weight:600;line-height:1.8;color:#4f5b72!important}
 .icon-box{width:46px;height:46px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--brand)}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--soft);color:var(--brand);font-size:12px;font-weight:800}
 .grad-text{background:linear-gradient(90deg,#6d5dfc,#4f8cff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -198,13 +200,6 @@ header img{max-height:42px}
 @media(max-width:640px){.dashboard-actions{width:100%;justify-content:flex-start}.dashboard-shortcut{flex:1}.goal-chip{order:3}}
 @media(prefers-reduced-motion:reduce){#dashboard-section>*,.dashboard-shortcut,#dashboard-section .progress>span,#water-mini-bar{animation:none!important;transition:none!important}}
 
-
-/* ===== subtle logo motion ===== */
-header [data-logo]{transform-origin:center;animation:logo-float 4.8s ease-in-out infinite;transition:filter .25s ease,transform .25s ease}
-header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));transform:scale(1.045)}
-#landing [data-logo]{transform-origin:center;animation:logo-float 5.6s ease-in-out infinite;will-change:transform}
-@keyframes logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-@media(prefers-reduced-motion:reduce){[data-logo]{animation:none!important;will-change:auto!important;transition:none!important}}
 
 
 /* ===== Interactive Meal Builder full-page experience ===== */
@@ -461,8 +456,8 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
     <div class="relative grid md:grid-cols-2 gap-6 md:gap-10 items-center p-6 sm:p-10 md:p-14">
       <div class="space-y-5 text-center md:text-right order-2 md:order-1">
         <span class="chip"><svg class="i" style="width:15px;height:15px"><use href="#i-zap"/></svg> التغذية واللياقة</span>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.25]">خطة تغذيتك،<br><span class="grad-text">محسوبة على جسمك وهدفك</span></h1>
-        <p class="text-sm sm:text-base leading-relaxed max-w-md mx-auto md:mx-0" style="color:var(--ink2)">أدخل بياناتك مرة واحدة، واحصل على سعراتك اليومية وتوزيع البروتين والكارب والدهون المناسب لهدفك.</p>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.25]">خطة تغذيتك<br><span class="grad-text">محسوبة على جسمك وهدفك</span></h1>
+        <p class="text-sm sm:text-base leading-relaxed max-w-md mx-auto md:mx-0" style="color:var(--ink2)">أدخل بياناتك مرة واحدة واحصل على سعراتك اليومية وتوزيع البروتين والكربوهيدرات والدهون بما يناسب هدفك.</p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-1">
           <button onclick="loginWithGoogle()" class="btn btn-google" style="padding:14px 24px">
             <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
@@ -475,18 +470,17 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
         </div>
       </div>
       <div class="order-1 md:order-2 flex justify-center">
-        <div class="relative">
-          <div class="absolute inset-0 rounded-full blur-3xl" style="background:linear-gradient(135deg,rgba(124,108,255,.35),rgba(79,140,255,.30))"></div>
-          <img data-logo alt="FiT EG Pro" class="relative h-48 sm:h-64 md:h-80 w-auto object-contain" style="filter:drop-shadow(0 18px 28px rgba(79,70,229,.25))">
+        <div class="relative flex items-center justify-center">
+          <img data-logo alt="FiT EG Pro" class="relative h-44 sm:h-60 md:h-72 w-auto object-contain">
         </div>
       </div>
     </div>
   </section>
 
-  <section class="grid sm:grid-cols-3 gap-4">
-    <div class="card p-6 space-y-3"><div class="icon-box"><svg class="i"><use href="#i-flame"/></svg></div><h3 class="font-black text-base">سعراتك بدقة</h3><p class="text-sm leading-relaxed" style="color:var(--ink2)">حساب معدل الحرق ومستوى نشاطك، حسب هدفك: خسارة دهون أو ثبات أو بناء عضلات.</p></div>
-    <div class="card p-6 space-y-3"><div class="icon-box"><svg class="i"><use href="#i-pie"/></svg></div><h3 class="font-black text-base">الماكروز جاهزة</h3><p class="text-sm leading-relaxed" style="color:var(--ink2)">توزيع يومي للبروتين والكارب والدهون بناءً على وزنك وهدفك.</p></div>
-    <div class="card p-6 space-y-3"><div class="icon-box"><svg class="i"><use href="#i-apple"/></svg></div><h3 class="font-black text-base">بحث ذكي في الأكل</h3><p class="text-sm leading-relaxed" style="color:var(--ink2)">اكتب أي أكلة أو مشروب بأي طريقة وهتلاقيها بقيمها الغذائية، وسجّلها بضغطة.</p></div>
+  <section class="landing-features grid sm:grid-cols-3 gap-4">
+    <div class="card p-6 space-y-3"><div class="icon-box"><svg class="i"><use href="#i-flame"/></svg></div><h3 class="font-black text-base">سعراتك بدقة</h3><p class="feature-copy text-sm leading-relaxed">احسب احتياجك اليومي من السعرات حسب نشاطك وهدفك.</p></div>
+    <div class="card p-6 space-y-3"><div class="icon-box"><svg class="i"><use href="#i-pie"/></svg></div><h3 class="font-black text-base">الماكروز جاهزة</h3><p class="feature-copy text-sm leading-relaxed">تابع احتياجك من البروتين والكربوهيدرات والدهون بما يناسبك.</p></div>
+    <div class="card p-6 space-y-3"><div class="icon-box"><svg class="i"><use href="#i-apple"/></svg></div><h3 class="font-black text-base">بحث ذكي في الأكل</h3><p class="feature-copy text-sm leading-relaxed">ابحث عن أكلك واعرف قيمه الغذائية وسجّله بسهولة.</p></div>
   </section>
 
   <section class="card p-6 sm:p-8">
