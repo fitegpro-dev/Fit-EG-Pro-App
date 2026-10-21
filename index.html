@@ -625,7 +625,7 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
 
     <div id="smart-box">
     <label class="flabel" for="meal-search">اكتب أكلك والكمية بطريقتك</label>
-    <p class="text-xs mb-2" style="color:var(--ink2)">اكتب جملة عادية زي: «بيضتين ورغيف عيش وكوباية شاي بلبن» أو «200 جرام فراخ و5 معالق رز». Gemini هيفهم الأصناف والكمية، ووالوجبة هتتسجل بضغطة واحدة.</p>
+    <p class="text-xs mb-2" style="color:var(--ink2)">اكتب جملة عادية زي: «بيضتين ورغيف عيش وكوباية شاي بلبن» أو «200 جرام فراخ و5 معالق رز». Gemini هيفهم الأصناف والكمية، وهيحسبها ويسجلها بضغطة واحدة من غير اختيار كمية بعد كده.</p>
     <div class="sbar">
       <svg class="i" style="color:#a9a7c4"><use href="#i-search"/></svg>
       <input id="meal-search" type="text" autocomplete="off" enterkeyhint="go" placeholder="مثال: بيضتين وعيش وكوباية شاي بلبن" oninput="onSmartInput()" onkeydown="mealSearchKey(event)" aria-describedby="meal-search-help">
@@ -642,8 +642,8 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
     <div id="meal-photo-preview" class="hidden mt-2"></div>
     <div id="meal-search-help" class="hint">اكتب الكمية زي ما بتقولها: عدد، جرام، كوب، معلقة أو رغيف. مفيش خانة كمية منفصلة.</div>
     <div id="analyze-bar" class="hidden mt-3 p-3 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3" style="background:linear-gradient(135deg,#f4f2ff,#eef5ff);border:1px solid #e1e5ff">
-      <span class="text-xs font-bold" style="color:var(--ink2)">Gemini هيفهم كلامك حتى مع أخطاء الكتابة، وهيضيف الوجبة تلقائيًا بعد حسابها.</span>
-      <button type="button" id="analyze-meal-button" class="btn btn-primary btn-sm" onclick="analyzeMealDescription()"><svg class="i" style="width:16px;height:16px"><use href="#i-zap"/></svg> حلّل الوجبة وأضفها</button>
+      <span class="text-xs font-bold" style="color:var(--ink2)">اكتب الكمية داخل الجملة؛ Gemini هيحسبها ويسجل الوجبة تلقائيًا من غير خطوة اختيار كمية أو تأكيد إضافية.</span>
+      <button type="button" id="analyze-meal-button" class="btn btn-primary btn-sm" onclick="analyzeMealDescription()"><svg class="i" style="width:16px;height:16px"><use href="#i-zap"/></svg> حلّل واحفظ فورًا</button>
     </div>
     <div id="meal-cats" class="flex gap-2 overflow-x-auto pb-1 mt-3"></div>
     <div id="meal-results" class="mt-2 grid gap-2 overflow-y-auto" style="max-height:24rem"></div>
@@ -1565,7 +1565,17 @@ function applyExplicitMealQuantities(items, text) {
     });
     if (!hint && items.length === hints.length) hint = hints[index];
     if (!hint && items.length === 1 && hints.length === 1) hint = hints[0];
-    if (hint) Object.assign(item, { amount: hint.quantity.amount, unit: hint.quantity.unit, grams: hint.quantity.grams });
+    if (hint) {
+      const previousAmount = Number(item.amount), previousGrams = Number(item.grams);
+      const sameUnit = item.unit === hint.quantity.unit && Number.isFinite(previousAmount) && previousAmount > 0;
+      const scale = hint.quantity.unit === 'g' && Number.isFinite(previousGrams) && previousGrams > 0
+        ? hint.quantity.grams / previousGrams
+        : (sameUnit ? hint.quantity.amount / previousAmount : 1);
+      if (item.nutrition && Number.isFinite(scale) && scale > 0) {
+        for (const key of MACROS) if (Number.isFinite(Number(item.nutrition[key]))) item.nutrition[key] *= scale;
+      }
+      Object.assign(item, { amount: hint.quantity.amount, unit: hint.quantity.unit, grams: hint.quantity.grams });
+    }
   });
   return items;
 }
@@ -1786,39 +1796,77 @@ function showMealAnalysisError(message) {
   box.innerHTML = `<div class="p-4 rounded-2xl text-sm" style="background:#fff7ed;color:#9a3412;border:1px solid #fed7aa">${esc(message)}</div>`;
 }
 
+function validGeminiNutrition(nutrition) {
+  return !!nutrition && MACROS.every(key => {
+    const value = Number(nutrition[key]);
+    return Number.isFinite(value) && value >= 0 && value <= (key === 'calories' ? 10000 : 1000);
+  });
+}
+function mealDbSupportsAmount(parsed, food) {
+  if (!food || parsed.amount == null || parsed.unit === 'unknown' || parsed.unit === 'serving') return true;
+  const serving = norm(food.serving || '');
+  if (parsed.unit === 'g') return /\d+(?:[.,]\d+)?\s*(جرام|جم|غرام|غ|gm|g)(?![\u0621-\u064Aa-z])/i.test(serving);
+  if (parsed.unit === 'ml') return /\d+(?:[.,]\d+)?\s*(مل|ml)(?![\u0621-\u064Aa-z])/i.test(serving);
+  if (parsed.unit === 'piece') return /\d+(?:[.,]\d+)?\s*(قطعه|حبه|حبات|بيضه|بيضة)/i.test(serving);
+  if (['cup', 'tablespoon', 'teaspoon'].includes(parsed.unit)) return /\d+(?:[.,]\d+)?\s*(مل|ml)(?![\u0621-\u064Aa-z])/i.test(serving);
+  return false;
+}
+
 async function autoSaveMealDraft(draft) {
   const box = $('meal-description-results');
   if (!currentUser) { showMealAnalysisError('سجّل الدخول الأول عشان نضيف الوجبة لحسابك.'); return false; }
   if (!Array.isArray(draft) || !draft.length) { showMealAnalysisError('مافهمتش اسم أكلة واضحة. جرّب اكتبها بطريقة تانية.'); return false; }
 
-  const notFound = draft.filter(item => !item.choices || !item.choices.length).map(item => item.parsed.name);
+  const notFound = draft.filter(item => (!item.choices || !item.choices.length) && !validGeminiNutrition(item.parsed.nutrition)).map(item => item.parsed.name);
   if (notFound.length) {
-    showMealAnalysisError(`ما ضفتش الوجبة عشان ما لقيتش بيانات غذائية موثوقة لـ: ${notFound.map(esc).join('، ')}. جرّب تصحيح اسم الصنف أو أضِفه لدليل الأكل.`);
-    setStatus('ما اتسجلتش الوجبة: في صنف محتاج يتعرف عليه الأول.');
+    showMealAnalysisError(`مافيش بيانات أو تقدير غذائي كافٍ للأصناف: ${notFound.map(esc).join('، ')}. جرّب وصفًا أوضح.`);
+    setStatus('ما اتسجلتش الوجبة: تعذّر تحديد بيانات بعض الأصناف.');
     return false;
   }
 
-  const rows = [];
+  const rows = [], estimatedNames = [];
   for (const item of draft) {
-    // Use the highest-ranked local/Open Food Facts match automatically.
-    const food = item.choices[item.choiceIndex || 0];
-    const quantity = servingsFromParsedAmount(item.parsed, food);
-    if (!food || !(quantity > 0 && quantity <= 100) || MACROS.some(key => foodMacro(food, key) === null)) {
-      showMealAnalysisError(`ما ضفتش الوجبة عشان بيانات السعرات أو المغذيات ناقصة للصنف «${esc(item.parsed.name)}». راجع دليل الأكل وأكمل بياناته.`);
-      setStatus('ما اتسجلتش الوجبة لأن بيانات أحد الأصناف ناقصة.');
-      return false;
+    const food = item.choices && item.choices[item.choiceIndex || 0];
+    const completeFood = food && MACROS.every(key => foodMacro(food, key) !== null);
+    const usableDatabaseAmount = completeFood && mealDbSupportsAmount(item.parsed, food);
+    const useEstimate = !usableDatabaseAmount;
+    let quantity, foodName, serving, macros;
+
+    if (useEstimate) {
+      if (!validGeminiNutrition(item.parsed.nutrition)) {
+        showMealAnalysisError(`مافيش قيم غذائية كافية للصنف «${esc(item.parsed.name)}». جرّب وصفًا أوضح.`);
+        setStatus('ما اتسجلتش الوجبة لأن قيم أحد الأصناف غير مكتملة.');
+        return false;
+      }
+      quantity = 1;
+      foodName = item.parsed.name;
+      const amountText = item.parsed.amount != null ? `${r1(item.parsed.amount)} ${MEAL_UNIT_LABELS[item.parsed.unit] || ''}`.trim() : 'حصة';
+      serving = `تقدير Gemini للكمية: ${amountText}`;
+      macros = item.parsed.nutrition;
+      estimatedNames.push(foodName);
+    } else {
+      quantity = servingsFromParsedAmount(item.parsed, food);
+      if (!(quantity > 0 && quantity <= 100)) {
+        showMealAnalysisError(`الكمية غير مناسبة للصنف «${esc(item.parsed.name)}». راجع الكمية واكتبها بوضوح.`);
+        setStatus('ما اتسجلتش الوجبة بسبب كمية غير صالحة.');
+        return false;
+      }
+      foodName = food.food_name;
+      serving = food.serving || 'حصة واحدة';
+      macros = Object.fromEntries(MACROS.map(key => [key, foodMacro(food, key) * quantity]));
     }
+
     rows.push({
       user_id: currentUser.id,
       log_date: todayStr(),
       meal_type: $('meal-category').value,
-      food_name: food.food_name,
-      serving: food.serving || 'حصة واحدة',
+      food_name: foodName,
+      serving,
       quantity,
-      calories: r1(food.calories * quantity),
-      protein: r1(food.protein * quantity),
-      carbs: r1(food.carbs * quantity),
-      fats: r1(food.fats * quantity),
+      calories: r1(macros.calories),
+      protein: r1(macros.protein),
+      carbs: r1(macros.carbs),
+      fats: r1(macros.fats),
       source: 'text_lookup'
     });
   }
@@ -1853,10 +1901,10 @@ async function autoSaveMealDraft(draft) {
   updateAnalyzeBar();
   $('manual-add').classList.add('hidden');
   box.classList.remove('hidden');
-  box.innerHTML = `<div class="p-4 rounded-2xl" style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46"><b>اتحللت واتضافت الوجبة تلقائيًا</b><div class="text-xs mt-1">${names.map(esc).join('، ')} · الإجمالي حوالي ${Math.round(total)} سعرة.</div></div>`;
+  const estimateNote = estimatedNames.length ? `<div class="text-xs mt-2" style="color:#92400e">القيم لبعض الأصناف تقديرية من Gemini وليست بيانات مؤكدة: ${estimatedNames.map(esc).join('، ')}.</div>` : '';
+  box.innerHTML = `<div class="p-4 rounded-2xl" style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46"><b>اتحللت واتضافت الوجبة تلقائيًا</b><div class="text-xs mt-1">${names.map(esc).join('، ')} · الإجمالي حوالي ${Math.round(total)} سعرة.</div>${estimateNote}</div>`;
   setStatus('✓ الوجبة اتحفظت في حسابك.');
   window.__mealDraft = [];
-  // The insert is already committed at this point. Refresh failures must not be reported as a failed save.
   try {
     await fetchToday();
     renderToday();
@@ -1877,9 +1925,9 @@ async function analyzeMealDescription() {
 
   mealAnalysisInProgress = true;
   const button = $('analyze-meal-button');
-  if (button) { button.disabled = true; button.innerHTML = '<span class="animate-pulse">Gemini بيحلل وبيسجل...</span>'; }
+  if (button) { button.disabled = true; button.innerHTML = '<span class="animate-pulse">Gemini بيحلل وبيحسب وبيحفظ...</span>'; }
   $('meal-results').innerHTML = '';
-  box.innerHTML = '<div class="p-4 rounded-2xl" style="background:#f4f6ff;border:1px solid #e1e5ff"><p class="text-sm font-bold">Gemini بيفهم كلامك والأخطاء الإملائية...</p><p class="text-xs mt-1" style="color:var(--ink2)">هنطابق الأكل مع دليل التغذية ونضيفه تلقائيًا لو لقينا بيانات مكتملة.</p></div>';
+  box.innerHTML = '<div class="p-4 rounded-2xl" style="background:#f4f6ff;border:1px solid #e1e5ff"><p class="text-sm font-bold">Gemini بيفهم كلامك والأخطاء الإملائية...</p><p class="text-xs mt-1" style="color:var(--ink2)">هنبحث عن بيانات موثوقة أولًا؛ ولو مش متاحة هنستخدم تقديرًا غذائيًا واضحًا إنه تقريبي.</p></div>';
   setStatus('بنحلل الجملة وبنحسب الوجبة...');
 
   try {
@@ -1888,13 +1936,20 @@ async function analyzeMealDescription() {
     try {
       const { data, error } = await db.functions.invoke('parse-meal-description', { body: { text } });
       if (error) throw error;
-      const items = (Array.isArray(data && data.items) ? data.items : []).slice(0, 8).map(x => ({
-        name: String(x.name || '').trim().slice(0, 100),
-        amount: x.amount !== null && x.amount !== undefined && Number.isFinite(Number(x.amount)) ? Number(x.amount) : null,
-        grams: x.grams !== null && x.grams !== undefined && Number.isFinite(Number(x.grams)) ? Number(x.grams) : null,
-        unit: MEAL_UNIT_LABELS[x.unit] ? x.unit : 'unknown',
-        searchTerms: Array.isArray(x.search_terms) ? x.search_terms.map(y => String(y || '').trim().slice(0, 100)).filter(Boolean).slice(0, 3) : []
-      })).filter(x => x.name);
+      const items = (Array.isArray(data && data.items) ? data.items : []).slice(0, 8).map(x => {
+        const n = x.nutrition || {};
+        const numeric = value => value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
+        return {
+          name: String(x.name || '').trim().slice(0, 100),
+          amount: numeric(x.amount),
+          grams: numeric(x.grams),
+          unit: MEAL_UNIT_LABELS[x.unit] ? x.unit : 'unknown',
+          searchTerms: Array.isArray(x.search_terms) ? x.search_terms.map(y => String(y || '').trim().slice(0, 100)).filter(Boolean).slice(0, 3) : [],
+          nutrition: { calories: numeric(n.calories), protein: numeric(n.protein), carbs: numeric(n.carbs), fats: numeric(n.fats) },
+          nutritionEstimated: x.nutrition_estimated !== false,
+          confidence: ['low','medium','high'].includes(x.confidence) ? x.confidence : 'low'
+        };
+      }).filter(x => x.name);
       if (!items.length) throw new Error('Gemini لم يحدد اسم صنف واضح.');
       applyExplicitMealQuantities(items, text);
       draft = await resolveMealItems(items);
@@ -1928,7 +1983,7 @@ async function analyzeMealDescription() {
     setStatus('حصل خطأ أثناء الحفظ. راجع تفاصيل الرسالة الظاهرة.');
   } finally {
     mealAnalysisInProgress = false;
-    if (button) { button.disabled = false; button.innerHTML = '<svg class="i" style="width:16px;height:16px"><use href="#i-zap"/></svg> حلّل الوجبة وأضفها'; }
+    if (button) { button.disabled = false; button.innerHTML = '<svg class="i" style="width:16px;height:16px"><use href="#i-zap"/></svg> حلّل واحفظ فورًا'; }
     updateAnalyzeBar();
   }
 }
