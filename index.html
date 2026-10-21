@@ -625,7 +625,7 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
 
     <div id="smart-box">
     <label class="flabel" for="meal-search">اكتب أكلك والكمية بطريقتك</label>
-    <p class="text-xs mb-2" style="color:var(--ink2)">اكتب جملة عادية زي: «بيضتين ورغيف عيش وكوباية شاي بلبن» أو «200 جرام فراخ و5 معالق رز». Gemini هيفهم الأصناف والكمية، وهيحسبها ويسجلها بضغطة واحدة من غير اختيار كمية بعد كده.</p>
+    <p class="text-xs mb-2" style="color:var(--ink2)">اكتب جملة عادية زي: «بيضتين ورغيف عيش وكوباية شاي بلبن» أو «200 جرام فراخ و5 معالق رز». هنحسب الأصناف والكميات ونسجلها تلقائيًا بضغطة واحدة، من غير اختيار كمية بعد كده.</p>
     <div class="sbar">
       <svg class="i" style="color:#a9a7c4"><use href="#i-search"/></svg>
       <input id="meal-search" type="text" autocomplete="off" enterkeyhint="go" placeholder="مثال: بيضتين وعيش وكوباية شاي بلبن" oninput="onSmartInput()" onkeydown="mealSearchKey(event)" aria-describedby="meal-search-help">
@@ -642,7 +642,7 @@ header [data-logo]:hover{filter:drop-shadow(0 5px 9px rgba(89,103,232,.24));tran
     <div id="meal-photo-preview" class="hidden mt-2"></div>
     <div id="meal-search-help" class="hint">اكتب الكمية زي ما بتقولها: عدد، جرام، كوب، معلقة أو رغيف. مفيش خانة كمية منفصلة.</div>
     <div id="analyze-bar" class="hidden mt-3 p-3 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3" style="background:linear-gradient(135deg,#f4f2ff,#eef5ff);border:1px solid #e1e5ff">
-      <span class="text-xs font-bold" style="color:var(--ink2)">اكتب الكمية داخل الجملة؛ Gemini هيحسبها ويسجل الوجبة تلقائيًا من غير خطوة اختيار كمية أو تأكيد إضافية.</span>
+      <span class="text-xs font-bold" style="color:var(--ink2)">اكتب الكمية مع الأكلة واضغط «حلّل واحفظ فورًا» مرة واحدة.</span>
       <button type="button" id="analyze-meal-button" class="btn btn-primary btn-sm" onclick="analyzeMealDescription()"><svg class="i" style="width:16px;height:16px"><use href="#i-zap"/></svg> حلّل واحفظ فورًا</button>
     </div>
     <div id="meal-cats" class="flex gap-2 overflow-x-auto pb-1 mt-3"></div>
@@ -1770,17 +1770,12 @@ async function handlePhoto(ev) {
     if (error) throw error;
     let text = (data && typeof data.text === 'string') ? data.text.trim() : '';
     if (!text && data && Array.isArray(data.items)) text = data.items.map(x => typeof x === 'string' ? x : (x && x.name) || '').filter(Boolean).join('، ');
-    if (!text) throw new Error('Gemini رجّع رد فاضي (يمكن الصورة مش واضحة إنها أكل)');
+    if (!text) throw new Error('ما قدرناش نحدد الأكل في الصورة. جرّب صورة أوضح أو اكتب الأصناف يدويًا.');
     $('meal-search').value = text; fromPhoto = true; onSmartInput();
-    setStatus('اتعرفنا على الأصناف واتكتبت فوق. عدّل النص لو في غلط وبعدين دوس "حلّل وقسّم".');
+    setStatus('اتعرفنا على الأصناف. راجع الوصف لو محتاج، ثم اضغط «حلّل واحفظ فورًا».');
   } catch (e) {
     console.warn('photo analysis unavailable', e);
-    let detail = '';
-    try {
-      if (e && e.context && typeof e.context.json === 'function') { const b = await e.context.json(); detail = (b && (b.error || b.message)) || JSON.stringify(b); }
-      else detail = (e && e.message) || String(e);
-    } catch (_) { detail = (e && e.message) || ''; }
-    setStatus('تعذّر التعرف على الصورة. السبب: ' + (detail || 'غير معروف') + ' — اكتب الأصناف بإيدك وكمّل عادي.');
+    setStatus('تعذّر التعرف على الصورة. جرّب صورة أوضح أو اكتب الأصناف يدويًا.');
     $('meal-search').focus();
   }
 }
@@ -1841,7 +1836,7 @@ async function autoSaveMealDraft(draft) {
       quantity = 1;
       foodName = item.parsed.name;
       const amountText = item.parsed.amount != null ? `${r1(item.parsed.amount)} ${MEAL_UNIT_LABELS[item.parsed.unit] || ''}`.trim() : 'حصة';
-      serving = `تقدير Gemini للكمية: ${amountText}`;
+      serving = `تقدير تقريبي للكمية: ${amountText}`;
       macros = item.parsed.nutrition;
       estimatedNames.push(foodName);
     } else {
@@ -1901,7 +1896,7 @@ async function autoSaveMealDraft(draft) {
   updateAnalyzeBar();
   $('manual-add').classList.add('hidden');
   box.classList.remove('hidden');
-  const estimateNote = estimatedNames.length ? `<div class="text-xs mt-2" style="color:#92400e">القيم لبعض الأصناف تقديرية من Gemini وليست بيانات مؤكدة: ${estimatedNames.map(esc).join('، ')}.</div>` : '';
+  const estimateNote = estimatedNames.length ? `<div class="text-xs mt-2" style="color:#92400e">القيم لبعض الأصناف تقديرية وقد تختلف حسب المكونات وطريقة التحضير: ${estimatedNames.map(esc).join('، ')}.</div>` : '';
   box.innerHTML = `<div class="p-4 rounded-2xl" style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46"><b>اتحللت واتضافت الوجبة تلقائيًا</b><div class="text-xs mt-1">${names.map(esc).join('، ')} · الإجمالي حوالي ${Math.round(total)} سعرة.</div>${estimateNote}</div>`;
   setStatus('✓ الوجبة اتحفظت في حسابك.');
   window.__mealDraft = [];
@@ -1925,9 +1920,9 @@ async function analyzeMealDescription() {
 
   mealAnalysisInProgress = true;
   const button = $('analyze-meal-button');
-  if (button) { button.disabled = true; button.innerHTML = '<span class="animate-pulse">Gemini بيحلل وبيحسب وبيحفظ...</span>'; }
+  if (button) { button.disabled = true; button.innerHTML = '<span class="animate-pulse">جارٍ التحليل والحفظ...</span>'; }
   $('meal-results').innerHTML = '';
-  box.innerHTML = '<div class="p-4 rounded-2xl" style="background:#f4f6ff;border:1px solid #e1e5ff"><p class="text-sm font-bold">Gemini بيفهم كلامك والأخطاء الإملائية...</p><p class="text-xs mt-1" style="color:var(--ink2)">هنبحث عن بيانات موثوقة أولًا؛ ولو مش متاحة هنستخدم تقديرًا غذائيًا واضحًا إنه تقريبي.</p></div>';
+  box.innerHTML = '<div class="p-4 rounded-2xl" style="background:#f4f6ff;border:1px solid #e1e5ff"><p class="text-sm font-bold">جارٍ تحليل الوجبة وحساب قيمها الغذائية...</p><p class="text-xs mt-1" style="color:var(--ink2)">نطابق الأكلات مع البيانات المتاحة، ونستخدم تقديرًا تقريبيًا عند الحاجة.</p></div>';
   setStatus('بنحلل الجملة وبنحسب الوجبة...');
 
   try {
@@ -1967,8 +1962,7 @@ async function analyzeMealDescription() {
       }
     }
     if (!draft || !draft.length) {
-      const detail = geminiError ? ` Gemini مش متاح حاليًا: ${geminiError.message || geminiError}.` : '';
-      showMealAnalysisError('مافهمتش الأكلة. جرّب تكتب اسمها بوضوح أو أعد صياغة الجملة.' + detail);
+      showMealAnalysisError('ما قدرناش نفهم وصف الأكل. جرّب تكتبه بطريقة أوضح.');
       setStatus('ما اتسجلتش الوجبة؛ عدّل الكتابة وجرّب تاني.');
       return;
     }
